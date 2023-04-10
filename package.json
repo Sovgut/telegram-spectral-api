@@ -1,5 +1,5 @@
 {
-    "name": "rex-webhook",
+    "name": "rex-tparser",
     "version": "0.1.0",
     "main": "build/application.js",
     "type": "module",
