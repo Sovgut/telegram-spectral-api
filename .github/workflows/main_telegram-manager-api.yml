@@ -23,14 +23,14 @@ jobs:
       uses: docker/login-action@v1
       with:
         registry: https://mcr.microsoft.com/
-        username: ${{ secrets.AzureAppService_ContainerUsername_db89f4c929334bac901c9664f0ae7f7b }}
-        password: ${{ secrets.AzureAppService_ContainerPassword_050caee213dc46b6b58b4fe9b377ddbf }}
+        username: ${{ secrets.AzureAppService_ContainerUsername_bc540d4984dd466faee15487c0240b82 }}
+        password: ${{ secrets.AzureAppService_ContainerPassword_1849089135ce4594bc17e8a81a31f991 }}
 
     - name: Build and push container image to registry
       uses: docker/build-push-action@v2
       with:
         push: true
-        tags: mcr.microsoft.com/${{ secrets.AzureAppService_ContainerUsername_db89f4c929334bac901c9664f0ae7f7b }}/appsvc/staticsite:${{ github.sha }}
+        tags: mcr.microsoft.com/${{ secrets.AzureAppService_ContainerUsername_bc540d4984dd466faee15487c0240b82 }}/appsvc/staticsite:${{ github.sha }}
         file: ./Dockerfile
 
   deploy:
@@ -47,5 +47,5 @@ jobs:
       with:
         app-name: 'telegram-manager-api'
         slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_43be2a6177aa4872ab0f90571e737a72 }}
-        images: 'mcr.microsoft.com/${{ secrets.AzureAppService_ContainerUsername_db89f4c929334bac901c9664f0ae7f7b }}/appsvc/staticsite:${{ github.sha }}'
+        publish-profile: ${{ secrets.AzureAppService_PublishProfile_3e5939d7a9fe4b6485d4e46338dce3b4 }}
+        images: 'mcr.microsoft.com/${{ secrets.AzureAppService_ContainerUsername_bc540d4984dd466faee15487c0240b82 }}/appsvc/staticsite:${{ github.sha }}'
