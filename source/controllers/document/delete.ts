@@ -1,11 +1,14 @@
-import type { RouteHandler } from 'fastify'
-import { StatusCodes } from 'http-status-codes'
-import { AzureStorage } from '../../core/blob-storage/provider.js';
-import { IDocumentDelete } from '../../types/document/delete.js';
+import type {RouteHandler} from 'fastify'
+import {StatusCodes} from 'http-status-codes'
+import {AzureBlobStorageWrapper} from '~core/blob-storage/wrapper.js';
+import {IDocumentDelete} from '~types/document/delete.js';
 
 export const DocumentDeleteController: RouteHandler<IDocumentDelete> = async (request, reply) => {
     try {
-        await AzureStorage.delete(request.body.url)
+        const {url} = request.body;
+        const azureStorage = new AzureBlobStorageWrapper();
+
+        await azureStorage.delete(url)
 
         reply.status(StatusCodes.OK).send({
             statusCode: StatusCodes.OK,

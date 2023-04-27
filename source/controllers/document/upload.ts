@@ -1,22 +1,28 @@
-import type { RouteHandler } from 'fastify'
-import { StatusCodes } from 'http-status-codes'
-import { AzureStorage } from '../../core/blob-storage/provider.js';
-import { RemoteFileStream } from '../../core/files.js';
+import type {RouteHandler} from 'fastify'
+import {StatusCodes} from 'http-status-codes'
+import {AzureBlobStorageProvider} from '~core/blob-storage/provider.js';
+import {LocalStorageProvider} from "~core/local-storage/provider.js";
 
 export const DocumentUploadController: RouteHandler = async (request, reply) => {
     try {
-        const info = await RemoteFileStream.saveFile(request);
+        const azureStorage = new AzureBlobStorageProvider();
+        const localStorage = new LocalStorageProvider();
 
-        if (!info) {
+        const fileInfo = await localStorage.write(request);
+
+        if (!fileInfo) {
             return reply.status(StatusCodes.BAD_REQUEST).send({
                 statusCode: StatusCodes.BAD_REQUEST,
                 message: 'Document is required',
             });
         }
 
-        const filestream = RemoteFileStream.getFileStream(info.filename);
-        const azureResponse = await AzureStorage.write(filestream, info.mimeType);
-        await RemoteFileStream.deleteFile(info.filename);
+        const filestream = localStorage.read(fileInfo.filename);
+        const azureResponse = await azureStorage.write(filestream, {
+            fileName: fileInfo.filename,
+            mimeType: fileInfo.mimeType
+        });
+        await localStorage.delete(fileInfo.filename);
 
         reply.status(StatusCodes.CREATED).send({
             statusCode: StatusCodes.CREATED,
