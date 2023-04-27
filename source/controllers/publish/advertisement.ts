@@ -1,13 +1,13 @@
 import type {RouteHandler} from 'fastify'
 import type {IPublishAdvertisement} from '~types/publish/advertisement.js';
 import {StatusCodes} from 'http-status-codes';
-import {AdvertisementProvider} from "~services/publish/advertisement/provider.js";
+import {PublishAdvertisementProvider} from "~services/publish/advertisement/provider.js";
 
 export const PublishAdvertisementController: RouteHandler<IPublishAdvertisement> = async (request, reply) => {
     try {
         const {chatId, text, document, button} = request.body;
 
-        const advertisementProvider = new AdvertisementProvider();
+        const advertisementProvider = new PublishAdvertisementProvider();
         await advertisementProvider.send(chatId, text, document, button)
 
         reply.status(StatusCodes.OK).send();

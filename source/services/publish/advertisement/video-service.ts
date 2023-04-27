@@ -7,7 +7,7 @@ import {extractThumbnail} from "~core/local-storage/extract-thumbnail.js";
 import {nanoid} from "nanoid";
 import {LocalStorageProvider} from "~core/local-storage/provider.js";
 
-export class AdvertisementVideoService {
+export class PublishAdvertisementVideoService {
     private azureStorage: AzureBlobStorageWrapper;
     private localStorage: LocalStorageWrapper;
     private localStorageProvider: LocalStorageProvider;
@@ -21,7 +21,7 @@ export class AdvertisementVideoService {
     public async send(chatId: string, text: string, document: IDocument, button: IButton) {
         await this.azureStorage.read(document.url);
         const fileStream = await this.localStorage.read(document.url);
-        
+
         const filename = extractFilename(document.url);
         const thumbnail = await extractThumbnail(filename, nanoid());
         const thumbStream = this.localStorageProvider.read(thumbnail.filename);

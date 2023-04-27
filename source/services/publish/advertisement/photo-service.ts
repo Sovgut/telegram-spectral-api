@@ -3,7 +3,7 @@ import {LocalStorageWrapper} from "~core/local-storage/wrapper.js";
 import {IButton, IDocument} from "~types/entities.js";
 import {App} from "~application";
 
-export class AdvertisementPhotoService {
+export class PublishAdvertisementPhotoService {
     private azureStorage: AzureBlobStorageWrapper;
     private localStorage: LocalStorageWrapper;
 

@@ -1,14 +1,14 @@
-import {AdvertisementPhotoService} from "~services/publish/advertisement/photo-service.js";
-import {AdvertisementVideoService} from "~services/publish/advertisement/video-service.js";
+import {PublishAdvertisementPhotoService} from "~services/publish/advertisement/photo-service.js";
+import {PublishAdvertisementVideoService} from "~services/publish/advertisement/video-service.js";
 import {IButton, IDocument} from "~types/entities.js";
 
-export class AdvertisementProvider {
-    private advertisementPhotoService: AdvertisementPhotoService;
-    private advertisementVideoService: AdvertisementVideoService;
+export class PublishAdvertisementProvider {
+    private advertisementPhotoService: PublishAdvertisementPhotoService;
+    private advertisementVideoService: PublishAdvertisementVideoService;
 
     constructor() {
-        this.advertisementPhotoService = new AdvertisementPhotoService();
-        this.advertisementVideoService = new AdvertisementVideoService();
+        this.advertisementPhotoService = new PublishAdvertisementPhotoService();
+        this.advertisementVideoService = new PublishAdvertisementVideoService();
     }
 
     public async send(chatId: string, text: string, document: IDocument, button: IButton) {
