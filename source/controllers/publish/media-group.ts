@@ -1,11 +1,15 @@
-import type { RouteHandler } from 'fastify'
-import type { IPublishMediaGroup } from '../../types/publish/media-group.js';
-import { sendMediaGroupWithMessage } from '../../services/publish/media-group.js';
-import { StatusCodes } from 'http-status-codes';
+import type {RouteHandler} from 'fastify'
+import type {IPublishMediaGroup} from '~types/publish/media-group.js';
+import {StatusCodes} from 'http-status-codes';
+import {PublishMediaGroupProvider} from "~services/publish/media-group/provider.js";
 
 export const PublishMediaGroupController: RouteHandler<IPublishMediaGroup> = async (request, reply) => {
     try {
-        await sendMediaGroupWithMessage(request.body.chatId, request.body.text, request.body.documents)
+        const {chatId, text, documents} = request.body;
+        const mediaGroupProvider = new PublishMediaGroupProvider();
+
+        await mediaGroupProvider.prepare(text, documents);
+        await mediaGroupProvider.send(chatId);
 
         reply.status(StatusCodes.OK).send();
     } catch (error) {
