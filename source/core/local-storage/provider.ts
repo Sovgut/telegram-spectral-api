@@ -22,7 +22,7 @@ export class LocalStorageProvider {
      *
      * @returns Promise with filename, mimeType and extension
      */
-    public async write(request: FastifyRequest) {
+    public async write(request: FastifyRequest): Promise<{ filename: string, mimeType: string, extension: string }> {
         const stream = busboy({headers: request.headers})
 
         return new Promise((resolve, reject) => {
