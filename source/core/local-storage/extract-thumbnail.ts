@@ -1,40 +1,42 @@
 import ffmpeg from 'fluent-ffmpeg'
 import sharp from 'sharp';
-import { imageSize } from 'image-size';
-import { Environment } from '../config.js';
-import { rootPath } from '../utils/root-path.js';
-import { RemoteFileStream } from '../files.js';
+import {imageSize} from 'image-size';
+import {Environment} from '~core/config.js';
+import {rootPath} from '~core/utils/root-path.js';
+import {LocalStorageProvider} from "~core/local-storage/provider.js";
 
 interface IThumbnail {
-  filename: string,
-  width: number | undefined,
-  height: number | undefined
+    filename: string,
+    width: number | undefined,
+    height: number | undefined
 }
 
 export async function extractThumbnail(videoPath: string, imagePath: string): Promise<IThumbnail> {
-  if (!Environment.isDevelopment) {
-    ffmpeg.setFfmpegPath(Environment.ffmpegPath)
-    ffmpeg.setFfprobePath(Environment.ffprobePath)
-  }
+    const localStorage = new LocalStorageProvider();
 
-  const filename = await new Promise((resolve, reject) => {
-    ffmpeg(rootPath(`../shared/${videoPath}`))
-      .on('end', () => resolve(`${imagePath}`))
-      .on('error', error => reject(error))
-      .screenshots({
-        timestamps: ['00:00:00.000'],
-        filename: imagePath,
-        folder: rootPath('../shared'),
-      });
-  }) as string;
+    if (!Environment.isDevelopment) {
+        ffmpeg.setFfmpegPath(Environment.ffmpegPath)
+        ffmpeg.setFfprobePath(Environment.ffprobePath)
+    }
 
-  await sharp(rootPath(`../shared/${filename}.png`))
-    .jpeg({ quality: 50 })
-    .toFile(rootPath(`../shared/${filename}.jpg`))
+    const filename = await new Promise((resolve, reject) => {
+        ffmpeg(rootPath(`temp/${videoPath}`))
+            .on('end', () => resolve(`${imagePath}`))
+            .on('error', error => reject(error))
+            .screenshots({
+                timestamps: ['00:00:00.000'],
+                filename: imagePath,
+                folder: rootPath('temp/'),
+            });
+    }) as string;
 
-  await RemoteFileStream.deleteFile(`${filename}.png`)
+    await sharp(rootPath(`temp/${filename}.png`))
+        .jpeg({quality: 50})
+        .toFile(rootPath(`temp/${filename}.jpg`))
 
-  const dimensions = imageSize(rootPath(`../shared/${filename}.jpg`));
+    await localStorage.delete(`${filename}.png`);
 
-  return { filename: `${filename}.jpg`, width: dimensions.width, height: dimensions.height }
+    const dimensions = imageSize(rootPath(`temp/${filename}.jpg`));
+
+    return {filename: `${filename}.jpg`, width: dimensions.width, height: dimensions.height}
 }

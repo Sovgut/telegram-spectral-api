@@ -6,4 +6,4 @@ import url from 'node:url'
  */
 export function rootPath(filepath: string) {
     return path.join(path.dirname(url.fileURLToPath(import.meta.url)), '../../..', filepath);
-}
+} 

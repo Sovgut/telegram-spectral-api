@@ -1,48 +1,70 @@
-import { nanoid } from "nanoid";
-import { AzureStorage } from "../../../core/blob-storage/provider.js";
-import { extractThumbnail } from "../../../core/local-storage/extract-thumbnail.js";
-import { RemoteFileStream } from "../../../core/files.js";
-import { getFilenameFromUrl } from "../../../core/utils/get-filename.js";
-import { App } from "../../main.js";
-import type { IButton, IDocument } from "../../../types/entities.js";
+import {nanoid} from "nanoid";
+import {App} from "~application";
+import {AzureBlobStorageWrapper} from "~core/blob-storage/wrapper.js";
+import {extractThumbnail} from "~core/local-storage/extract-thumbnail.js";
+import {extractFilename} from "~core/utils/extract-filename.js";
+import type {IButton, IDocument} from "~types/entities.js";
+import {LocalStorageWrapper} from "~core/local-storage/wrapper.js";
+import {LocalStorageProvider} from "~core/local-storage/provider.js";
 
 export async function sendAdvertisementMessage(chatId: string, text: string, document: IDocument, button: IButton) {
-    await AzureStorage.read(document.url)
+    const azureStorageWrapper = new AzureBlobStorageWrapper();
+    const localStorageWrapper = new LocalStorageWrapper();
+    const localStorageProvider = new LocalStorageProvider();
 
-    const filestream = RemoteFileStream.getFileStreamFromUrl(document.url);
+    /**
+     * Download file from Azure Blob Storage to local storage
+     */
+    await azureStorageWrapper.read(document.url);
+
+    /**
+     * Create file stream from local storage
+     */
+    const fileStream = localStorageWrapper.read(document.url);
+
     if (document.type === 'photo') {
-        await App.bot.telegram.sendPhoto(chatId, { source: filestream }, {
+        await App.bot.telegram.sendPhoto(chatId, {source: fileStream}, {
             caption: text,
             parse_mode: 'HTML',
             reply_markup: {
                 inline_keyboard: [[
-                    { text: button.text, url: button.url },
+                    {text: button.text, url: button.url},
                 ]]
             }
         });
     }
 
     if (document.type === 'video') {
-        const filename = getFilenameFromUrl(document.url);
-        const thumbnail = await extractThumbnail(filename, nanoid());
-        const thumbstream = RemoteFileStream.getFileStream(thumbnail.filename);
+        const filename = extractFilename(document.url);
 
-        await App.bot.telegram.sendVideo(chatId, { source: filestream }, {
+        /**
+         * Extract thumbnail from video and save it to local storage
+         */
+        const thumbnail = await extractThumbnail(filename, nanoid());
+        const thumbStream = localStorageProvider.read(thumbnail.filename);
+
+        await App.bot.telegram.sendVideo(chatId, {source: fileStream}, {
             caption: text,
-            thumb: { source: thumbstream },
+            thumb: {source: thumbStream},
             width: thumbnail.width,
             height: thumbnail.height,
             parse_mode: 'HTML',
             reply_markup: {
                 inline_keyboard: [[
-                    { text: button.text, url: button.url },
+                    {text: button.text, url: button.url},
                 ]]
             }
         });
 
-        await RemoteFileStream.deleteFile(thumbnail.filename);
+        /**
+         * Delete thumbnail from local storage
+         */
+        await localStorageProvider.delete(thumbnail.filename);
     }
 
-    await AzureStorage.delete(document.url);
-    await RemoteFileStream.deleteFileFromUrl(document.url);
+    /**
+     * Delete file from local storage and Azure Blob Storage
+     */
+    await localStorageWrapper.delete(document.url);
+    await azureStorageWrapper.delete(document.url);
 }
