@@ -1,11 +1,14 @@
-import type { RouteHandler } from 'fastify'
-import type { IPublishAdvertisement } from '../../types/publish/advertisement.js';
-import { sendAdvertisementMessage } from '../../services/publish/advertisement.js';
-import { StatusCodes } from 'http-status-codes';
+import type {RouteHandler} from 'fastify'
+import type {IPublishAdvertisement} from '~types/publish/advertisement.js';
+import {StatusCodes} from 'http-status-codes';
+import {AdvertisementProvider} from "~services/publish/advertisement/provider.js";
 
 export const PublishAdvertisementController: RouteHandler<IPublishAdvertisement> = async (request, reply) => {
     try {
-        await sendAdvertisementMessage(request.body.chatId, request.body.text, request.body.document, request.body.button)
+        const {chatId, text, document, button} = request.body;
+
+        const advertisementProvider = new AdvertisementProvider();
+        await advertisementProvider.send(chatId, text, document, button)
 
         reply.status(StatusCodes.OK).send();
     } catch (error) {
