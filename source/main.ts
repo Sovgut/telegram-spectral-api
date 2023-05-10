@@ -11,16 +11,19 @@ import {PublishTextController} from '~controllers/publish/text.js';
 import {DocumentUploadController} from '~controllers/document/upload.js';
 import {DocumentDeleteController} from '~controllers/document/delete.js';
 import {DocumentDeleteValidationSchema} from '~validations/document/delete.js';
+import {TelegramConnectionProvider} from "~core/telegram/connection.js";
 
 export class App {
     public static server: FastifyInstance;
     public static bot: Telegraf;
+    public static telegram: TelegramConnectionProvider;
 
     static {
         App.server = Fastify({logger: true});
         App.server.register(FastifyMultipart);
 
-        App.bot = new Telegraf(Environment.telegramToken);
+        App.bot = new Telegraf(Environment.telegramBotToken);
+        App.telegram = new TelegramConnectionProvider();
 
         App.server.route({
             method: 'POST',

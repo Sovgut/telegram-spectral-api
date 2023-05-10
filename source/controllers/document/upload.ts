@@ -17,12 +17,12 @@ export const DocumentUploadController: RouteHandler = async (request, reply) => 
             });
         }
 
-        const filestream = localStorage.read(fileInfo.filename);
+        const filestream = localStorage.read(`${fileInfo.filename}.${fileInfo.extension}`);
         const azureResponse = await azureStorage.write(filestream, {
-            fileName: fileInfo.filename,
+            fileName: `${fileInfo.filename}.${fileInfo.extension}`,
             mimeType: fileInfo.mimeType
         });
-        await localStorage.delete(fileInfo.filename);
+        await localStorage.delete(`${fileInfo.filename}.${fileInfo.extension}`);
 
         reply.status(StatusCodes.CREATED).send({
             statusCode: StatusCodes.CREATED,

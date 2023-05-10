@@ -4,6 +4,8 @@ import fs from "node:fs";
 import {rootPath} from "~core/utils/root-path.js";
 import {nanoid} from "nanoid";
 import mime2ext from "mime2ext";
+import {optimizePhoto} from "~core/utils/optimize-photo.js";
+import {optimizeVideo} from "~core/utils/optimize-video.js";
 
 export class LocalStorageProvider {
     /**
@@ -40,7 +42,25 @@ export class LocalStorageProvider {
                 file.pipe(fileStream);
             });
 
-            stream.on('close', () => resolve({filename, mimeType, extension}))
+            stream.on('close', async () => {
+                if (mimeType.startsWith('image') && mimeType !== 'image/gif') {
+                    await optimizePhoto(rootPath(`temp/${filename}.${extension}`), rootPath(`temp/${filename}-optimized.jpg`))
+
+                    filename = `${filename}-optimized`
+                    extension = 'jpg'
+                    mimeType = 'image/jpeg'
+                }
+
+                if (mimeType.startsWith('video')) {
+                    await optimizeVideo(rootPath(`temp/${filename}.${extension}`), rootPath(`temp/${filename}-optimized.mp4`))
+
+                    filename = `${filename}-optimized`
+                    extension = 'mp4'
+                    mimeType = 'video/mp4'
+                }
+
+                resolve({filename, mimeType, extension})
+            })
             stream.on('error', (error) => reject(error))
 
             request.raw.pipe(stream)

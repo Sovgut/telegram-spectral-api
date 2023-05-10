@@ -1,10 +1,10 @@
-import { config } from 'dotenv';
+import {config} from 'dotenv';
 import os from 'node:os'
-import { rootPath } from './utils/root-path.js';
+import {rootPath} from './utils/root-path.js';
 
 export class Environment {
     static {
-        config({ path: rootPath('../.env') });
+        config({path: rootPath('.env')});
     }
 
     public static get isDevelopment() {
@@ -27,7 +27,7 @@ export class Environment {
         return `${process.env['AZ_BATCH_APP_PACKAGE_ffprobe#5.1.2']}/ffprobe`;
     }
 
-    public static get telegramToken() {
+    public static get telegramBotToken() {
         const token = process.env.TELEGRAM_BOT_TOKEN;
 
         if (!token) {
@@ -36,6 +36,62 @@ export class Environment {
         }
 
         return token;
+    }
+
+    public static get telegramApiId() {
+        const apiId = parseInt(String(process.env.TELEGRAM_API_ID), 10);
+
+        if (isNaN(apiId)) {
+            console.error('Telegram API ID is required');
+            process.exit(1);
+        }
+
+        return apiId;
+    }
+
+    public static get telegramApiHash() {
+        const apiHash = process.env.TELEGRAM_API_HASH;
+
+        if (!apiHash) {
+            console.error('Telegram API Hash is required');
+            process.exit(1);
+        }
+
+        return apiHash;
+    }
+
+    public static get telegramPhoneNumber() {
+        const phoneNumber = process.env.TELEGRAM_PHONE_NUMBER;
+
+        if (!phoneNumber) {
+            console.error('Telegram phone number is required');
+            process.exit(1);
+        }
+
+        return phoneNumber;
+    }
+
+    public static get telegramPassword() {
+        const password = process.env.TELEGRAM_PASSWORD;
+
+        if (!password) {
+            console.error('Telegram password is required');
+            process.exit(1);
+        }
+
+        return password;
+    }
+
+    public static get telegramSessionString() {
+        const sessionString = process.env.TELEGRAM_SESSION_STRING;
+
+        if (!sessionString) {
+            console.warn('Telegram session string is not found.');
+
+            return String();
+        }
+
+        return sessionString;
     }
 
     public static get azureStorageConnectionString() {

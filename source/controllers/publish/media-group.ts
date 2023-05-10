@@ -8,8 +8,7 @@ export const PublishMediaGroupController: RouteHandler<IPublishMediaGroup> = asy
         const {chatId, text, documents} = request.body;
         const mediaGroupProvider = new PublishMediaGroupProvider();
 
-        await mediaGroupProvider.prepare(text, documents);
-        await mediaGroupProvider.send(chatId);
+        await mediaGroupProvider.send(chatId, text, documents);
 
         reply.status(StatusCodes.OK).send();
     } catch (error) {

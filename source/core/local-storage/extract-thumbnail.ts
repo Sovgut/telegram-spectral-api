@@ -11,7 +11,7 @@ interface IThumbnail {
     height: number | undefined
 }
 
-export async function extractThumbnail(videoPath: string, imagePath: string): Promise<IThumbnail> {
+export async function extractThumbnail(videoPath: string, filename: string): Promise<IThumbnail> {
     const localStorage = new LocalStorageProvider();
 
     if (!Environment.isDevelopment) {
@@ -19,16 +19,16 @@ export async function extractThumbnail(videoPath: string, imagePath: string): Pr
         ffmpeg.setFfprobePath(Environment.ffprobePath)
     }
 
-    const filename = await new Promise((resolve, reject) => {
+    await new Promise((resolve, reject) => {
         ffmpeg(rootPath(`temp/${videoPath}`))
-            .on('end', () => resolve(`${imagePath}`))
+            .on('end', () => resolve(undefined))
             .on('error', error => reject(error))
             .screenshots({
                 timestamps: ['00:00:00.000'],
-                filename: imagePath,
+                filename: filename,
                 folder: rootPath('temp/'),
             });
-    }) as string;
+    });
 
     await sharp(rootPath(`temp/${filename}.png`))
         .jpeg({quality: 50})

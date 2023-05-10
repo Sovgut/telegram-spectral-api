@@ -1,4 +1,5 @@
 import {LocalStorageProvider} from "~core/local-storage/provider.js";
+import {extractFilename} from "~core/utils/extract-filename.js";
 
 export class LocalStorageWrapper extends LocalStorageProvider {
     /**
@@ -9,6 +10,6 @@ export class LocalStorageWrapper extends LocalStorageProvider {
      * @returns Filename string
      */
     protected override getFilename(value: string) {
-        return value;
+        return extractFilename(value);
     }
 }

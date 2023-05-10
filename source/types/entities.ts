@@ -10,11 +10,6 @@ export interface IButton {
     url: string
 }
 
-export interface IThumbnail {
-    source: internal.Readable;
-    filename: string;
-}
-
 export interface IMedia {
     source: internal.Readable;
     filename: string;
@@ -22,13 +17,20 @@ export interface IMedia {
 
 export interface IVideoInputOptions {
     caption?: string;
-    width?: number;
-    height?: number;
-    thumb: IThumbnail | string;
     media: IMedia;
 }
 
 export interface IPhotoInputOptions {
     caption?: string;
     media: IMedia;
+}
+
+export interface ITelegramFile {
+    photo: Array<{ file_id: string }>
+    video: {
+        file_id: string,
+        thumb?: {
+            file_id: string
+        }
+    }
 }

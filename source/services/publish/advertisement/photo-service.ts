@@ -27,6 +27,5 @@ export class PublishAdvertisementPhotoService {
         });
 
         await this.localStorage.delete(document.url);
-        await this.azureStorage.delete(document.url);
     }
 }

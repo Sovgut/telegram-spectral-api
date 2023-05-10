@@ -2,9 +2,6 @@ import {AzureBlobStorageWrapper} from "~core/blob-storage/wrapper.js";
 import {LocalStorageWrapper} from "~core/local-storage/wrapper.js";
 import {IButton, IDocument} from "~types/entities.js";
 import {App} from "~application";
-import {extractFilename} from "~core/utils/extract-filename.js";
-import {extractThumbnail} from "~core/local-storage/extract-thumbnail.js";
-import {nanoid} from "nanoid";
 import {LocalStorageProvider} from "~core/local-storage/provider.js";
 
 export class PublishAdvertisementVideoService {
@@ -22,16 +19,16 @@ export class PublishAdvertisementVideoService {
         await this.azureStorage.read(document.url);
         const fileStream = await this.localStorage.read(document.url);
 
-        const filename = extractFilename(document.url);
-        const thumbnail = await extractThumbnail(filename, nanoid());
-        const thumbStream = this.localStorageProvider.read(thumbnail.filename);
+        const telegramFile = await App.bot.telegram.sendVideo(chatId, {source: fileStream}, {disable_notification: true})
+        await App.bot.telegram.deleteMessage(chatId, telegramFile.message_id)
 
-        await App.bot.telegram.sendVideo(chatId, {source: fileStream}, {
+        await App.bot.telegram.sendVideo(chatId, telegramFile.video.file_id, {
             caption: text,
-            thumb: {source: thumbStream},
-            width: thumbnail.width,
-            height: thumbnail.height,
+            thumb: telegramFile.video.thumb?.file_id as any,
+            width: telegramFile.video.width,
+            height: telegramFile.video.height,
             parse_mode: 'HTML',
+            disable_notification: false,
             reply_markup: {
                 inline_keyboard: [[
                     {text: button.text, url: button.url},
@@ -39,8 +36,6 @@ export class PublishAdvertisementVideoService {
             }
         });
 
-        await this.localStorageProvider.delete(thumbnail.filename);
         await this.localStorage.delete(document.url);
-        await this.azureStorage.delete(document.url);
     }
 }

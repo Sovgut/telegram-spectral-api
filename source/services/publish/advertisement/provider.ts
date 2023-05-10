@@ -1,23 +1,15 @@
-import {PublishAdvertisementPhotoService} from "~services/publish/advertisement/photo-service.js";
-import {PublishAdvertisementVideoService} from "~services/publish/advertisement/video-service.js";
 import {IButton, IDocument} from "~types/entities.js";
+import {TelegramPublishProvider} from "~core/telegram/publish.js";
 
 export class PublishAdvertisementProvider {
-    private advertisementPhotoService: PublishAdvertisementPhotoService;
-    private advertisementVideoService: PublishAdvertisementVideoService;
-
-    constructor() {
-        this.advertisementPhotoService = new PublishAdvertisementPhotoService();
-        this.advertisementVideoService = new PublishAdvertisementVideoService();
-    }
+    private telegramPublishProvider = new TelegramPublishProvider();
 
     public async send(chatId: string, text: string, document: IDocument, button: IButton) {
-        if (document.type === 'photo') {
-            await this.advertisementPhotoService.send(chatId, text, document, button);
-        }
-
-        if (document.type === 'video') {
-            await this.advertisementVideoService.send(chatId, text, document, button);
-        }
+        await this.telegramPublishProvider.publish(chatId, {
+            text,
+            button,
+            kind: 'advertisement',
+            media: document.url,
+        })
     }
 }
