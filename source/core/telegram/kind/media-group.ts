@@ -128,20 +128,36 @@ export class PublishMediaGroupMessage {
             headers: form.getHeaders(),
         }
 
-        await new Promise((resolve, reject) => {
+        const response = await new Promise((resolve, reject) => {
+            const chunks: string[] = [];
+            let body: unknown | null = null;
+
             const request = https.request(options, (response) => {
-                response.on('end', () => resolve(true))
-                response.on('error', () => reject(false));
+                response.on('end', () => {
+                    body = JSON.parse(chunks.join(''));
+                })
+                response.on('error', (error) => {
+                    reject(error)
+                });
+                response.on('data', (chunk) => {
+                    chunks.push(chunk);
+                });
             });
 
             form.pipe(request);
 
-            request.on('error', (e) => {
-                App.server.log.error(e);
-                reject(false);
+            request.on('error', (error) => {
+                App.server.log.error(error);
+                reject(error);
             });
+
+            request.on('close', () => {
+                resolve(body)
+            })
         });
 
         await this.clear(attachments);
+
+        return response;
     }
 }
