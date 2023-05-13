@@ -1,17 +1,17 @@
 import Fastify, {FastifyInstance} from 'fastify';
 import FastifyMultipart from '@fastify/multipart';
 import {Telegraf} from 'telegraf'
-import {Environment} from '~core/config.js';
-import {PublishAdvertisementValidationSchema} from '~validations/publish/advertisement.js';
-import {PublishAdvertisementController} from '~controllers/publish/advertisement.js';
-import {PublishMediaGroupValidationSchema} from '~validations/publish/media-group.js';
+import {PublishMediaController} from '~controllers/publish/media.js';
 import {PublishMediaGroupController} from '~controllers/publish/media-group.js';
-import {PublishTextValidationSchema} from '~validations/publish/text.js';
 import {PublishTextController} from '~controllers/publish/text.js';
 import {DocumentUploadController} from '~controllers/document/upload.js';
 import {DocumentDeleteController} from '~controllers/document/delete.js';
-import {DocumentDeleteValidationSchema} from '~validations/document/delete.js';
 import {TelegramConnectionProvider} from "~core/telegram/connection.js";
+import {DocumentDetailsController} from "~controllers/document/details.js";
+import {DocumentListController} from "~controllers/document/list.js";
+import {Validations} from "./validations.js";
+import {errorHandler} from "~core/error-handler.js";
+import {Core} from "~core/namespace.js";
 
 export class App {
     public static server: FastifyInstance;
@@ -19,53 +19,68 @@ export class App {
     public static telegram: TelegramConnectionProvider;
 
     static {
-        App.server = Fastify({logger: true});
+        App.server = Fastify({logger: false});
+        App.server.setErrorHandler(errorHandler);
         App.server.register(FastifyMultipart);
 
-        App.bot = new Telegraf(Environment.telegramBotToken);
+        App.bot = new Telegraf(Core.Environment.telegramBotToken);
         App.telegram = new TelegramConnectionProvider();
 
         App.server.route({
             method: 'POST',
-            url: '/upload/document',
+            url: '/document',
             handler: DocumentUploadController
         });
 
         App.server.route({
             method: 'DELETE',
-            url: '/upload/document',
-            schema: DocumentDeleteValidationSchema,
+            url: '/document/:documentId',
+            schema: Validations.Document.Delete,
             handler: DocumentDeleteController
         });
 
         App.server.route({
+            method: 'GET',
+            url: '/document/:documentId',
+            schema: Validations.Document.Details,
+            handler: DocumentDetailsController
+        });
+
+        App.server.route({
+            method: 'GET',
+            url: '/document',
+            schema: Validations.Document.List,
+            handler: DocumentListController
+        });
+
+        App.server.route({
             method: 'POST',
-            url: '/publish/advertisement',
-            schema: PublishAdvertisementValidationSchema,
-            handler: PublishAdvertisementController
+            url: '/publish/media',
+            schema: Validations.Publish.Media,
+            handler: PublishMediaController
         });
 
         App.server.route({
             method: 'POST',
             url: '/publish/media-group',
-            schema: PublishMediaGroupValidationSchema,
+            schema: Validations.Publish.MediaGroup,
             handler: PublishMediaGroupController
         });
 
         App.server.route({
             method: 'POST',
             url: '/publish/text',
-            schema: PublishTextValidationSchema,
+            schema: Validations.Publish.Text,
             handler: PublishTextController
         });
 
-        App.server.listen({port: Environment.appPort}, async (error: Error | null, address: string) => {
+        App.server.listen({port: Core.Environment.appPort}, async (error: Error | null, address: string) => {
             if (error) {
-                App.server.log.error(error);
+                Core.Logger.error('Server', error.message);
                 process.exit(1);
             }
 
-            App.server.log.info(`server listening on ${address}`);
+            Core.Logger.info('Server', `Listening on ${address}`);
             await App.bot.launch();
         });
     }

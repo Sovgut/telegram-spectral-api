@@ -1,3 +1,6 @@
+import {IThumbnail} from "~types/common/file-service.js";
+import {Document} from "~repositories/document/model.js";
+
 export interface IPublishTextMessage {
     kind: 'text';
     text: string;
@@ -6,23 +9,19 @@ export interface IPublishTextMessage {
 export interface IPublishMediaMessage {
     kind: 'media';
     text: string;
+    document: Document;
 }
 
 export interface IPublishMediaGroupMessage {
     kind: 'mediaGroup';
     text: string;
-    media: IMedia[];
+    documents: Document[];
 }
 
 export interface IPublishAdvertisementMessage {
     kind: 'advertisement';
     text: string;
-
-    /**
-     * Document url stored in Azure Blob Storage
-     */
-    media: string;
-
+    document: Document;
     button: {
         text: string;
         url: string;
@@ -34,12 +33,13 @@ export interface IMedia {
     type: 'photo' | 'video';
 }
 
-export interface IAttachment {
+export interface Attachment {
     type: 'photo' | 'video';
     mimeType: string;
     filename: string;
     filepath: string;
     caption?: string;
+    thumbnail?: IThumbnail;
 }
 
 export type PublishOptions =

@@ -2,18 +2,24 @@ import internal from "node:stream";
 import mime2ext from "mime2ext";
 import {nanoid} from "nanoid";
 import {BlobServiceClient} from "@azure/storage-blob";
-import {rootPath} from "~core/utils/root-path.js";
-import {Environment} from "~core/config.js";
 import {IWriteOptions} from "~types/blob-storage.js";
+import {Core} from "~core/namespace.js";
 
-export class AzureBlobStorageProvider {
-    protected client: BlobServiceClient;
+/**
+ * Storage enum types for correctly getting filename from input value
+ */
+enum StoragePathType {
+    Url,
+    FilePath,
+    FileName,
+}
 
-    constructor() {
-        this.client = BlobServiceClient.fromConnectionString(
-            Environment.azureStorageConnectionString
-        );
-    }
+export class AzureStorage {
+    protected static logger = new Core.Logger('AzureStorage');
+    protected static client = BlobServiceClient.fromConnectionString(
+        Core.Environment.azureStorageConnectionString
+    );
+    public static StoragePathType = StoragePathType;
 
     /**
      * Checks if container exists in Azure Storage
@@ -22,7 +28,7 @@ export class AzureBlobStorageProvider {
      *
      * @returns True if container exists, false otherwise
      */
-    protected async isContainerExists(containerName: string) {
+    protected static async isContainerExists(containerName: string) {
         const container = this.client.getContainerClient(containerName);
 
         return await container.exists();
@@ -35,8 +41,10 @@ export class AzureBlobStorageProvider {
      *
      * @returns Container creation response
      */
-    protected async createContainer(containerName: string) {
+    protected static async createContainer(containerName: string) {
         const container = this.client.getContainerClient(containerName);
+
+        this.logger.log(`Creating container ${containerName}`);
 
         return await container.create();
     }
@@ -49,7 +57,7 @@ export class AzureBlobStorageProvider {
      *
      * @returns Filename string with extension
      */
-    protected createFilename(defaultName?: string, mimeType?: string) {
+    protected static createFilename(defaultName?: string, mimeType?: string) {
         if (defaultName) return defaultName;
         if (!mimeType) {
             return `${nanoid()}-${Date.now()}`;
@@ -63,11 +71,14 @@ export class AzureBlobStorageProvider {
      * Gets filename from provided in argument
      *
      * @param value Filename to get from
+     * @param pathType Path type to get filename from
      *
      * @returns Filename string
      */
-    protected getFilename(value: string) {
-        return value;
+    protected static getFilename(value: string, pathType: StoragePathType) {
+        if (pathType === this.StoragePathType.FileName) return value;
+
+        return Core.Utils.extractFilename(value);
     }
 
     /**
@@ -77,7 +88,7 @@ export class AzureBlobStorageProvider {
      *
      * @returns Blob headers object
      */
-    protected getHeaders(mimeType?: string) {
+    protected static getHeaders(mimeType?: string) {
         return {blobHTTPHeaders: {blobContentType: mimeType}}
     }
 
@@ -89,9 +100,9 @@ export class AzureBlobStorageProvider {
      *
      * @returns Response object with url, mimeType and filename
      */
-    protected createResponse(filename: string, mimeType?: string) {
-        const account = Environment.azureStorageAccountName;
-        const container = Environment.azureStorageContainerName;
+    protected static createResponse(filename: string, mimeType?: string) {
+        const account = Core.Environment.azureStorageAccountName;
+        const container = Core.Environment.azureStorageContainerName;
 
         return {
             url: `https://${account}.blob.core.windows.net/${container}/${filename}`,
@@ -108,14 +119,16 @@ export class AzureBlobStorageProvider {
      *
      * @returns Response object with url, mimeType and filename
      */
-    public async write(stream: internal.Readable, options: IWriteOptions = {}) {
-        if (!await this.isContainerExists(Environment.azureStorageContainerName)) {
-            await this.createContainer(Environment.azureStorageContainerName);
+    public static async write(stream: internal.Readable, options: IWriteOptions = {}) {
+        if (!await this.isContainerExists(Core.Environment.azureStorageContainerName)) {
+            await this.createContainer(Core.Environment.azureStorageContainerName);
         }
+
+        this.logger.log(`Storing file ${options.fileName}`);
 
         const filename = this.createFilename(options.fileName, options.mimeType);
         const headers = this.getHeaders(options.mimeType);
-        const container = this.client.getContainerClient(Environment.azureStorageContainerName);
+        const container = this.client.getContainerClient(Core.Environment.azureStorageContainerName);
         const blockBlobClient = container.getBlockBlobClient(filename);
 
         await blockBlobClient.uploadStream(stream, undefined, undefined, headers);
@@ -127,16 +140,19 @@ export class AzureBlobStorageProvider {
      * Downloads file from Azure Storage
      *
      * @param fileName Filename to download from Azure Storage
+     * @param pathType Path type to get filename from fileName value
      *
      * @returns Path to downloaded file
      */
-    public async read(fileName: string) {
-        const preparedFilename = this.getFilename(fileName);
-        const path = rootPath(`temp/${preparedFilename}`);
-        const container = this.client.getContainerClient(Environment.azureStorageContainerName);
+    public static async read(fileName: string, pathType: StoragePathType = StoragePathType.Url) {
+        const preparedFilename = this.getFilename(fileName, pathType);
+        const path = Core.Utils.rootPath(`temp/${preparedFilename}`);
+        const container = this.client.getContainerClient(Core.Environment.azureStorageContainerName);
         const blockBlobClient = container.getBlockBlobClient(preparedFilename);
 
         await blockBlobClient.downloadToFile(path)
+
+        this.logger.log(`Downloaded file ${preparedFilename}`);
 
         return path;
     }
@@ -145,11 +161,14 @@ export class AzureBlobStorageProvider {
      * Deletes file from Azure Storage
      *
      * @param fileName Filename to delete from Azure Storage
+     * @param pathType Path type to get filename from fileName value
      */
-    public async delete(fileName: string) {
-        const preparedFilename = this.getFilename(fileName);
-        const container = this.client.getContainerClient(Environment.azureStorageContainerName);
+    public static async delete(fileName: string, pathType: StoragePathType = StoragePathType.Url) {
+        const preparedFilename = this.getFilename(fileName, pathType);
+        const container = this.client.getContainerClient(Core.Environment.azureStorageContainerName);
         const blockBlobClient = container.getBlockBlobClient(preparedFilename);
+
+        this.logger.log(`Deleting file ${preparedFilename}`);
 
         await blockBlobClient.delete()
     }

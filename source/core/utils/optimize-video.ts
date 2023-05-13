@@ -1,11 +1,11 @@
 import ffmpeg from "fluent-ffmpeg";
 import fs from "node:fs";
-import {Environment} from "~core/config.js";
+import {Core} from "~core/namespace.js";
 
-export async function optimizeVideo(inputPath: string, outputPath: string): Promise<string> {
-    if (!Environment.isDevelopment) {
-        ffmpeg.setFfmpegPath(Environment.ffmpegPath)
-        ffmpeg.setFfprobePath(Environment.ffprobePath)
+export async function _optimizeVideo(inputPath: string, outputPath: string): Promise<string> {
+    if (!Core.Environment.isDevelopment) {
+        ffmpeg.setFfmpegPath(Core.Environment.ffmpegPath)
+        ffmpeg.setFfprobePath(Core.Environment.ffprobePath)
     }
 
     return new Promise((resolve, reject) => {

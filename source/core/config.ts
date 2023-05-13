@@ -1,10 +1,10 @@
-import {config} from 'dotenv';
 import os from 'node:os'
-import {rootPath} from './utils/root-path.js';
+import {config} from 'dotenv';
+import {_rootPath} from "~core/utils/root-path.js";
 
-export class Environment {
+export class _Environment {
     static {
-        config({path: rootPath('.env')});
+        config({path: _rootPath('.env')});
     }
 
     public static get isDevelopment() {
@@ -136,5 +136,16 @@ export class Environment {
         }
 
         return port;
+    }
+
+    public static get databaseConnectionString() {
+        const connectionString = process.env.DATABASE_URL;
+
+        if (!connectionString) {
+            console.error('DATABASE_URL connection string is required');
+            process.exit(1);
+        }
+
+        return connectionString;
     }
 }

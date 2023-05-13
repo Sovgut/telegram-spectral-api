@@ -1,20 +1,17 @@
 import type {RouteHandler} from 'fastify'
-import type {IPublishMediaGroup} from '~types/publish/media-group.js';
 import {StatusCodes} from 'http-status-codes';
-import {PublishMediaGroupProvider} from "~services/publish/media-group/provider.js";
+import {Request} from '~types/request.js';
+import {Document} from "~repositories/document/model.js";
+import {Telegram} from "~repositories/telegram/model.js";
 
-export const PublishMediaGroupController: RouteHandler<IPublishMediaGroup> = async (request, reply) => {
-    try {
-        const {chatId, text, documents} = request.body;
-        const mediaGroupProvider = new PublishMediaGroupProvider();
+export const PublishMediaGroupController: RouteHandler<Request.Publish.MediaGroup> = async (request, reply) => {
+    const {chatId, text, documentIds} = request.body;
 
-        await mediaGroupProvider.send(chatId, text, documents);
+    const [documents] = await Document.findMany({ids: documentIds, limit: Number.MAX_SAFE_INTEGER, offset: 0});
+    const telegramResponse = await Telegram.sendMediaGroup(chatId, text, documents);
 
-        reply.status(StatusCodes.OK).send();
-    } catch (error) {
-        reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-            statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
-            error: (error as Error).message,
-        });
-    }
+    reply.status(StatusCodes.OK).send({
+        statusCode: StatusCodes.OK,
+        data: JSON.parse(telegramResponse),
+    })
 }

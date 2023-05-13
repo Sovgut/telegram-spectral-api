@@ -1,19 +1,21 @@
-import {TelegramClient} from "telegram";
+import {Logger, TelegramClient} from "telegram";
 import {StringSession} from "telegram/sessions/StringSession.js";
-import {Environment} from "~core/config.js";
 import inquirer from "inquirer";
+import {LogLevel} from "telegram/extensions/Logger.js";
+import {Core} from "~core/namespace.js";
 
 export class TelegramConnectionProvider {
-    private stringSession: StringSession = new StringSession(Environment.telegramSessionString);
+    private stringSession: StringSession = new StringSession(Core.Environment.telegramSessionString);
     private client: TelegramClient = new TelegramClient(
         this.stringSession,
-        Environment.telegramApiId,
-        Environment.telegramApiHash, {
+        Core.Environment.telegramApiId,
+        Core.Environment.telegramApiHash, {
             appVersion: '1.0.0',
             deviceModel: 'SpectralAPI',
             langCode: 'en',
             connectionRetries: 5,
             requestRetries: 1,
+            baseLogger: new Logger(LogLevel.ERROR),
         })
 
     private isConnected() {
@@ -33,8 +35,8 @@ export class TelegramConnectionProvider {
 
     public async createSessionString() {
         await this.client.start({
-            phoneNumber: async () => Environment.telegramPhoneNumber,
-            password: async () => Environment.telegramPassword,
+            phoneNumber: async () => Core.Environment.telegramPhoneNumber,
+            password: async () => Core.Environment.telegramPassword,
             phoneCode: async () => {
                 const {code} = await inquirer.prompt([{
                     type: "input",
