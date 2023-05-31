@@ -1,16 +1,31 @@
-import {MongoClient} from 'mongodb'
-import {Core} from "~core/namespace.js";
+import { type Db, MongoClient } from "mongodb";
+import { Config } from "~core/config/class.js";
+import { Logger } from "~core/logger.js";
 
-const client = new MongoClient(Core.Environment.databaseConnectionString);
+const logger = new Logger();
+const client = new MongoClient(Config.databaseConnectionString());
 
-Core.Logger.log('Database', 'Connecting...')
-const connection = await client.connect();
-
-process.on('SIGINT', async () => {
-    Core.Logger.log('Database', 'Closing connection...')
-    await client.close();
+await logger.log({
+  scope: "Database:databaseConnection",
+  message: "Connecting to database...",
 });
 
-export async function databaseConnection() {
-    return connection.db('spectral-api-database');
+const connection = await client.connect();
+
+await logger.log({
+  scope: "Database:databaseConnection",
+  message: "Connected to database",
+});
+
+process.on("SIGINT", async () => {
+  await logger.log({
+    scope: "Database:databaseConnection",
+    message: "SIGINT received, closing connection...",
+  });
+
+  await client.close();
+});
+
+export async function databaseConnection(): Promise<Db> {
+  return connection.db("spectral-api-database");
 }

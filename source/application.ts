@@ -1,87 +1,22 @@
-import Fastify, {type FastifyInstance} from 'fastify'
-import FastifyMultipart from '@fastify/multipart'
-import {Telegraf} from 'telegraf'
-import {PublishMediaController} from '~controllers/publish/media.js'
-import {PublishMediaGroupController} from '~controllers/publish/media-group.js'
-import {PublishTextController} from '~controllers/publish/text.js'
-import {DocumentUploadController} from '~controllers/document/upload.js'
-import {DocumentDeleteController} from '~controllers/document/delete.js'
-import {TelegramConnectionProvider} from '~core/telegram/connection.js'
-import {DocumentDetailsController} from '~controllers/document/details.js'
-import {DocumentListController} from '~controllers/document/list.js'
-import {Validations} from './validations.js'
-import {errorHandler} from '~core/error-handler.js'
-import {Core} from '~core/namespace.js'
+import "~core/boot.js";
+import Fastify from "fastify";
+import FastifyMultipart from "@fastify/multipart";
+import { TelegramConnectionProvider } from "~core/telegram/connection.js";
+import { errorHandler } from "~core/http/error-handler.js";
+import { DocumentControllerRouter } from "~controllers/document.js";
+import { PublishControllerRouter } from "~controllers/publish.js";
+import { onServerStart } from "~core/http/hooks.js";
+import { Config } from "~core/config/class.js";
+import { requestLogger } from "~core/http/request-logger.js";
 
-export class App {
-  public static server: FastifyInstance
-  public static bot: Telegraf
-  public static telegram: TelegramConnectionProvider
+const server = Fastify({ logger: false });
 
-  static {
-    App.server = Fastify({logger: false})
-    App.server.setErrorHandler(errorHandler)
-    App.server.register(FastifyMultipart)
+server.setErrorHandler(errorHandler);
+server.register(FastifyMultipart);
+server.addHook("onRequest", requestLogger);
+server.register(DocumentControllerRouter);
+server.register(PublishControllerRouter);
 
-    App.bot = new Telegraf(Core.Environment.telegramBotToken)
-    App.telegram = new TelegramConnectionProvider()
+server.listen({ port: Config.appPort() }, onServerStart);
 
-    App.server.route({
-      method: 'POST',
-      url: '/document',
-      handler: DocumentUploadController
-    })
-
-    App.server.route({
-      method: 'DELETE',
-      url: '/document/:documentId',
-      schema: Validations.Document.Delete,
-      handler: DocumentDeleteController
-    })
-
-    App.server.route({
-      method: 'GET',
-      url: '/document/:documentId',
-      schema: Validations.Document.Details,
-      handler: DocumentDetailsController
-    })
-
-    App.server.route({
-      method: 'GET',
-      url: '/document',
-      schema: Validations.Document.List,
-      handler: DocumentListController
-    })
-
-    App.server.route({
-      method: 'POST',
-      url: '/publish/media',
-      schema: Validations.Publish.Media,
-      handler: PublishMediaController
-    })
-
-    App.server.route({
-      method: 'POST',
-      url: '/publish/media-group',
-      schema: Validations.Publish.MediaGroup,
-      handler: PublishMediaGroupController
-    })
-
-    App.server.route({
-      method: 'POST',
-      url: '/publish/text',
-      schema: Validations.Publish.Text,
-      handler: PublishTextController
-    })
-
-    App.server.listen({port: Core.Environment.appPort}, async (error: Error | null, address: string) => {
-      if (error != null) {
-        Core.Logger.error('Server', error.message)
-        process.exit(1)
-      }
-
-      Core.Logger.info('Server', `Listening on ${address}`)
-      await App.bot.launch()
-    })
-  }
-}
+export const telegramClient = new TelegramConnectionProvider();

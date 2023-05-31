@@ -1,49 +1,45 @@
-import {IThumbnail} from "~types/common/file-service.js";
-import {Document} from "~repositories/document/model.js";
+import { type IThumbnail } from "~types/common/file-service.js";
+import { type Document } from "~repositories/document/model.js";
 
 export interface IPublishTextMessage {
-    kind: 'text';
-    text: string;
+  kind: "text";
+  text: string;
 }
 
 export interface IPublishMediaMessage {
-    kind: 'media';
-    text: string;
-    document: Document;
+  kind: "media";
+  text: string;
+  document: Document;
 }
 
 export interface IPublishMediaGroupMessage {
-    kind: 'mediaGroup';
-    text: string;
-    documents: Document[];
+  kind: "mediaGroup";
+  text: string;
+  documents: Document[];
 }
 
 export interface IPublishAdvertisementMessage {
-    kind: 'advertisement';
+  kind: "advertisement";
+  text: string;
+  document: Document;
+  button: {
     text: string;
-    document: Document;
-    button: {
-        text: string;
-        url: string;
-    }
+    url: string;
+  };
 }
 
 export interface IMedia {
-    url: string;
-    type: 'photo' | 'video';
+  url: string;
+  type: "photo" | "video";
 }
 
 export interface Attachment {
-    type: 'photo' | 'video';
-    mimeType: string;
-    filename: string;
-    filepath: string;
-    caption?: string;
-    thumbnail?: IThumbnail;
+  type: "photo" | "video";
+  mimeType: string;
+  filename: string;
+  filepath: string;
+  caption?: string;
+  thumbnail?: IThumbnail;
 }
 
-export type PublishOptions =
-    IPublishTextMessage
-    | IPublishMediaMessage
-    | IPublishMediaGroupMessage
-    | IPublishAdvertisementMessage;
+export type PublishOptions = IPublishTextMessage | IPublishMediaMessage | IPublishMediaGroupMessage | IPublishAdvertisementMessage;

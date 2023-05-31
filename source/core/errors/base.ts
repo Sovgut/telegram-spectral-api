@@ -1,15 +1,9 @@
-import {StatusCodes} from "http-status-codes";
+import { StatusCodes } from "http-status-codes";
 
 export class BaseError extends Error {
-    constructor(message: string) {
-        super(message);
-    }
+  public get statusCode(): number {
+    return StatusCodes.INTERNAL_SERVER_ERROR;
+  }
 
-    public get statusCode() {
-        return StatusCodes.INTERNAL_SERVER_ERROR
-    }
-
-    public get key() {
-        return 'internal_server_error'
-    }
+  public readonly key: string = "internal_server_error";
 }

@@ -1,42 +1,58 @@
-import chalk from 'chalk';
+import chalk from "chalk";
 
-export class _Logger {
-    constructor(readonly namespace: string) {
-    }
+enum LogLevel {
+  DEBUG = "DEBUG",
+  INFO = "INFO",
+  WARN = "WARN",
+  ERROR = "ERROR",
+}
 
-    static log(namespace: string, message: unknown) {
-        if (process.env.NODE_ENV === 'development') {
-            console.log(`[${chalk.gray(namespace)}]`, message);
-        }
-    }
+interface LoggerContext {
+  scope: string;
 
-    log(message: unknown) {
-        if (process.env.NODE_ENV === 'development') {
-            console.log(`[${chalk.gray(this.namespace)}]`, message);
-        }
-    }
+  [key: string]: any;
+}
 
-    static error(namespace: string, message: unknown) {
-        console.error(`[${chalk.red(namespace)}]`, message);
-    }
+const Levels: Record<LogLevel, number> = {
+  [LogLevel.DEBUG]: 0,
+  [LogLevel.INFO]: 1,
+  [LogLevel.WARN]: 2,
+  [LogLevel.ERROR]: 3,
+};
 
-    error(message: unknown) {
-        console.error(`[${chalk.red(this.namespace)}]`, message);
-    }
+export class Logger {
+  private readonly transport = console.log;
+  private readonly isPrettyfied = process.env.NODE_ENV === "local";
 
-    static warn(namespace: string, message: unknown) {
-        console.warn(`[${chalk.yellow(namespace)}]`, message);
-    }
+  private commit(context: LoggerContext, defaultLevel: LogLevel): void {
+    const processLevel = process.env.LOG_LEVEL as LogLevel | undefined;
+    const level = processLevel ?? defaultLevel;
 
-    warn(message: unknown) {
-        console.warn(`[${chalk.yellow(this.namespace)}]`, message);
-    }
+    context.timestamp = new Date().toISOString();
+    context.level = defaultLevel;
 
-    static info(namespace: string, message: unknown) {
-        console.log(`[${chalk.blueBright(namespace)}]`, message);
+    if (Levels[level] <= Levels[defaultLevel]) {
+      if (this.isPrettyfied) {
+        this.transport(`[${chalk.blue(context.scope)}]: ${JSON.stringify(context, null, 2)}`);
+      } else {
+        this.transport(JSON.stringify(context));
+      }
     }
+  }
 
-    info(message: unknown) {
-        console.log(`[${chalk.blueBright(this.namespace)}]`, message);
-    }
+  public async log(context: LoggerContext): Promise<void> {
+    this.commit(context, LogLevel.DEBUG);
+  }
+
+  public async info(context: LoggerContext): Promise<void> {
+    this.commit(context, LogLevel.INFO);
+  }
+
+  public async warn(context: LoggerContext): Promise<void> {
+    this.commit(context, LogLevel.WARN);
+  }
+
+  public async error(context: LoggerContext): Promise<void> {
+    this.commit(context, LogLevel.ERROR);
+  }
 }
