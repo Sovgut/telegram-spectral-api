@@ -1,57 +1,62 @@
-import {TelegramClient} from "telegram";
-import {StringSession} from "telegram/sessions/StringSession.js";
-import {Environment} from "~core/config.js";
+import { Logger as TelegramLogger, TelegramClient } from "telegram";
+import { StringSession } from "telegram/sessions/StringSession.js";
 import inquirer from "inquirer";
+import { LogLevel } from "telegram/extensions/Logger.js";
+import { Logger } from "~core/logger.js";
+import { Config } from "~core/config/class.js";
 
 export class TelegramConnectionProvider {
-    private stringSession: StringSession = new StringSession(Environment.telegramSessionString);
-    private client: TelegramClient = new TelegramClient(
-        this.stringSession,
-        Environment.telegramApiId,
-        Environment.telegramApiHash, {
-            appVersion: '1.0.0',
-            deviceModel: 'SpectralAPI',
-            langCode: 'en',
-            connectionRetries: 5,
-            requestRetries: 1,
-        })
+  private readonly stringSession: StringSession = new StringSession(Config.telegramSessionString());
+  private readonly client: TelegramClient = new TelegramClient(this.stringSession, Config.telegramApiId(), Config.telegramApiHash(), {
+    appVersion: "1.0.0",
+    deviceModel: "SpectralAPI",
+    langCode: "en",
+    connectionRetries: 5,
+    requestRetries: 1,
+    baseLogger: new TelegramLogger(LogLevel.ERROR),
+  });
 
-    private isConnected() {
-        return this.client && !!this.client.connected;
+  private isConnected(): boolean {
+    return typeof this.client !== "undefined" && this.client.connected === true;
+  }
+
+  public async getClient(): Promise<TelegramClient> {
+    if (this.isConnected()) {
+      return this.client;
     }
 
-    public async getClient() {
-        if (this.isConnected()) {
-            return this.client;
-        }
+    await this.client.connect();
+    await this.client.getMe();
 
-        await this.client.connect();
-        await this.client.getMe();
+    return this.client;
+  }
 
-        return this.client;
-    }
+  public async createSessionString(): Promise<void> {
+    const logger = new Logger();
 
-    public async createSessionString() {
-        await this.client.start({
-            phoneNumber: async () => Environment.telegramPhoneNumber,
-            password: async () => Environment.telegramPassword,
-            phoneCode: async () => {
-                const {code} = await inquirer.prompt([{
-                    type: "input",
-                    name: "code",
-                    message: "Enter the code you received: ",
-                }]);
+    await this.client.start({
+      phoneNumber: async () => Config.telegramPhoneNumber(),
+      password: async () => Config.telegramPassword(),
+      phoneCode: async () => {
+        const { code } = await inquirer.prompt<{ code: number }>([
+          {
+            type: "number",
+            name: "code",
+            message: "Enter the code you received: ",
+          },
+        ]);
 
-                console.log(code)
+        return code.toString();
+      },
+      onError: (err) => console.log(err),
+    });
 
-                return code;
-            },
-            onError: (err) => console.log(err),
-        });
+    const sessionString = this.stringSession.save() as unknown as string;
 
-        console.log("You should now be connected.");
-        console.log("Store this session string into TELEGRAM_SESSION_STRING:", this.client.session.save());
-
-        await this.client.sendMessage("me", {message: "Connected"});
-    }
+    await logger.info({
+      scope: "TelegramConnectionProvider:createSessionString",
+      message: `You should now be connected. Store this session string into TELEGRAM_SESSION_STRING: ${sessionString}`,
+    });
+    await this.client.sendMessage("me", { message: "Connected" });
+  }
 }

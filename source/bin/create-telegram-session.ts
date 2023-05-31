@@ -1,4 +1,4 @@
-import {TelegramConnectionProvider} from "~core/telegram/connection.js";
+import { TelegramConnectionProvider } from "~core/telegram/connection.js";
 
 const telegramConnection = new TelegramConnectionProvider();
 await telegramConnection.createSessionString();
