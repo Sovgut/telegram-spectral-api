@@ -1,28 +1,27 @@
 {
-  "env": {
-    "es2021": true,
-    "node": true
-  },
-  "extends": ["standard-with-typescript", "prettier"],
-  "plugins": ["prettier"],
-  "overrides": [
-  ],
-  "parser": "@typescript-eslint/parser",
-  "parserOptions": {
-    "ecmaVersion": "latest",
-    "sourceType": "module",
-    "project": [
-      "./tsconfig.json"
-    ]
-  },
-  "rules": {
-    "@typescript-eslint/no-misused-promises": "off",
-    "@typescript-eslint/return-await": "off",
-    "@typescript-eslint/no-floating-promises": "off",
-    "@typescript-eslint/no-namespace": "off",
-    "@typescript-eslint/no-confusing-void-expression": "off",
-    "@typescript-eslint/strict-boolean-expressions": "off",
-    "linebreak-style": ["error", "unix"],
-    "prettier/prettier": "error"
-  }
+	"env": {
+		"es2021": true,
+		"node": true
+	},
+	"extends": ["standard-with-typescript", "prettier"],
+	"plugins": ["prettier"],
+	"overrides": [],
+	"parser": "@typescript-eslint/parser",
+	"parserOptions": {
+		"ecmaVersion": "latest",
+		"sourceType": "module",
+		"project": ["./tsconfig.json"]
+	},
+	"rules": {
+		"no-tabs": "off",
+		"@typescript-eslint/no-tabs": "off",
+		"@typescript-eslint/no-misused-promises": "off",
+		"@typescript-eslint/return-await": "off",
+		"@typescript-eslint/no-floating-promises": "off",
+		"@typescript-eslint/no-namespace": "off",
+		"@typescript-eslint/no-confusing-void-expression": "off",
+		"@typescript-eslint/strict-boolean-expressions": "off",
+		"linebreak-style": ["error", "unix"],
+		"prettier/prettier": "error"
+	}
 }
