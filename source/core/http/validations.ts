@@ -1,6 +1,61 @@
 import { type FastifySchema } from "fastify";
 
 export namespace Validations {
+	export namespace Channel {
+		export const ListenChannel: FastifySchema = {
+			body: {
+				type: "object",
+				properties: {
+					reference: { type: "string" },
+					title: { type: "string" },
+				},
+				required: ["reference", "title"],
+			},
+		};
+
+		export const UnlistenChannel: FastifySchema = {
+			params: {
+				type: "object",
+				properties: {
+					reference: { type: "string" },
+				},
+				required: ["reference"],
+			},
+		};
+
+		export const GetChannel: FastifySchema = {
+			params: {
+				type: "object",
+				properties: {
+					reference: { type: "string" },
+				},
+				required: ["reference"],
+			},
+		};
+
+		export const GetChannels: FastifySchema = {
+			querystring: {
+				type: "object",
+				properties: {
+					id: { type: "string" },
+					ids: {
+						type: "array",
+						items: { type: "string" },
+					},
+					reference: { type: "string" },
+					orderBy: {
+						type: "string",
+						enum: ["id_desc", "id_asc", "reference_desc", "reference_asc", "createdAt_desc", "createdAt_asc"],
+						default: "createdAt_desc",
+					},
+					limit: { type: "number", default: 10 },
+					offset: { type: "number", default: 0 },
+					source: { type: "string", enum: ["telegram", "cosmos"], default: "cosmos" },
+				},
+			},
+		};
+	}
+
 	export namespace Document {
 		export const Delete: FastifySchema = {
 			params: {

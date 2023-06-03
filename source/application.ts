@@ -8,6 +8,7 @@ import { PublishControllerRouter } from "~controllers/publish.js";
 import { onServerStart } from "~core/http/hooks.js";
 import { Config } from "~core/config/class.js";
 import { requestLogger } from "~core/http/request-logger.js";
+import { ChannelControllerRouter } from "~controllers/channel.js";
 
 const server = Fastify({ logger: false });
 
@@ -16,6 +17,7 @@ server.register(FastifyMultipart);
 server.addHook("onRequest", requestLogger);
 server.register(DocumentControllerRouter);
 server.register(PublishControllerRouter);
+server.register(ChannelControllerRouter);
 
 server.listen({ port: Config.appPort() }, onServerStart);
 

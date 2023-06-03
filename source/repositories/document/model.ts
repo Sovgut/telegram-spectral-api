@@ -110,7 +110,7 @@ export class Document extends Repository {
 			})
 		);
 
-		if (file == null) {
+		if (file === null) {
 			throw new Error("File not found");
 		}
 

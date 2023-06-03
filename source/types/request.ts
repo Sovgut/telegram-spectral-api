@@ -1,4 +1,36 @@
 export namespace Request {
+	export namespace Channel {
+		export interface ListenChannel {
+			Body: {
+				reference: string;
+				title: string;
+			};
+		}
+
+		export interface UnlistenChannel {
+			Params: {
+				reference: string;
+			};
+		}
+
+		export interface GetChannel {
+			Params: {
+				reference: string;
+			};
+		}
+
+		export interface GetChannels {
+			Querystring: {
+				id?: string;
+				ids?: string[];
+				reference?: string;
+				orderBy?: string;
+				limit: number;
+				offset: number;
+				source: "telegram" | "cosmos";
+			};
+		}
+	}
 	export namespace Document {
 		export interface Delete {
 			Params: {
