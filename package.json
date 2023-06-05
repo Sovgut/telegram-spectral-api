@@ -8,7 +8,7 @@
 		"node": "^18.16.0"
 	},
 	"scripts": {
-		"build": "tsc && tsc-alias",
+		"build": "(tsc || ./node_modules/typescript/bin/tsc) && (tsc-alias || ./node_modules/typescript/bin/tsc-alias)",
 		"lint": "eslint . --ext .ts",
 		"start": "node .",
 		"dev": "npm run-script lint && npm run-script build && npm run-script start"
