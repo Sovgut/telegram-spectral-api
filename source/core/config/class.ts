@@ -160,12 +160,12 @@ export namespace Config {
 	}
 
 	export function appPort(): number {
-		const port = parseInt(String(process.env.APP_PORT), 10);
+		const port = parseInt(String(process.env.PORT), 10);
 
 		if (isNaN(port)) {
 			logger.error({
 				scope: "config:appPort",
-				message: "APP_PORT is required",
+				message: "PORT is required",
 			});
 
 			process.exit(1);
