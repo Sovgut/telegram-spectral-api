@@ -23,6 +23,6 @@ server.register(PublishControllerRouter);
 server.register(ChannelControllerRouter);
 server.register(WebhookControllerRouter);
 
-server.listen({ port: Config.appPort() }, onServerStart);
+server.listen({ host: "127.0.0.1", port: Config.appPort() }, onServerStart);
 
 export const telegramClient = new TelegramConnectionProvider();
