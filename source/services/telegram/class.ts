@@ -1,9 +1,8 @@
 import { LocalStorage } from "~core/local-storage/provider.js";
 import https from "node:https";
 import { Core } from "~core/namespace.js";
-import { type Attachment, type AttachmentPayload, type TelegramMessageButton } from "~repositories/telegram/types.js";
+import { type Attachment, type AttachmentPayload, type TelegramMessageButton } from "~services/telegram/types.js";
 import FormData from "form-data";
-import { type Document } from "~repositories/document/model.js";
 import { type ReadStream } from "node:fs";
 import { AzureStorage } from "~core/blob-storage/provider.js";
 import { StoragePathType } from "~types/blob-storage.js";
@@ -11,8 +10,9 @@ import { PhotoProcessing } from "~core/processing/photo.js";
 import { Logger } from "~core/logger.js";
 import { Config } from "~core/config/class.js";
 import { Decorators } from "~core/decorators.js";
+import { type IDocument } from "~database/models/document.js";
 
-export class Telegram {
+export class TelegramService {
 	private readonly azureStorage = new AzureStorage();
 	private readonly localStorage = new LocalStorage();
 
@@ -32,8 +32,8 @@ export class Telegram {
 		return attachmentData;
 	}
 
-	private getAttachment(form: FormData, text: string): (document: Document, index: number) => Promise<Attachment> {
-		return async (document: Document, index: number) => {
+	private getAttachment(form: FormData, text: string): (document: IDocument, index: number) => Promise<Attachment> {
+		return async (document: IDocument, index: number) => {
 			await this.azureStorage.read(document.location, StoragePathType.Url);
 
 			const filename = Core.Utils.extractFilename(document.location);
@@ -127,7 +127,7 @@ export class Telegram {
 	}
 
 	@Decorators.Logger("Send photo to Telegram")
-	async sendPhoto(chatId: string, text: string, document: Document, button?: TelegramMessageButton): Promise<string> {
+	async sendPhoto(chatId: string, text: string, document: IDocument, button?: TelegramMessageButton): Promise<string> {
 		const form = new FormData();
 
 		await this.azureStorage.read(document.location, StoragePathType.Url);
@@ -159,7 +159,7 @@ export class Telegram {
 	}
 
 	@Decorators.Logger("Send video to Telegram")
-	async sendVideo(chatId: string, text: string, document: Document, button?: TelegramMessageButton): Promise<string> {
+	async sendVideo(chatId: string, text: string, document: IDocument, button?: TelegramMessageButton): Promise<string> {
 		const form = new FormData();
 
 		await this.azureStorage.read(document.location, StoragePathType.Url);
@@ -192,7 +192,7 @@ export class Telegram {
 	}
 
 	@Decorators.Logger("Send album to Telegram")
-	async sendAlbum(chatId: string, text: string, documents: Document[]): Promise<string> {
+	async sendAlbum(chatId: string, text: string, documents: IDocument[]): Promise<string> {
 		const form = new FormData();
 
 		const attachments: Attachment[] = await Promise.all(documents.map(this.getAttachment(form, text)));

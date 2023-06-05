@@ -1,29 +1,28 @@
 import { TelegramConnectionProvider } from "../connection.js";
 import { Decorators } from "~core/decorators.js";
 import { Peer, type ChannelEntity } from "./types.js";
-import { Channel } from "~repositories/channel/model.js";
+import { type IChannel } from "~database/models/channel.js";
+import { ChannelService } from "~services/channels/class.js";
+import { type IMongooseMeta } from "~types/entities.js";
 
 export class TelegramChannelProvider {
 	private readonly connectionProvider = new TelegramConnectionProvider();
+	private readonly channelService = new ChannelService();
 
 	@Decorators.Logger("Searching channel by peer")
-	public async getChannelByPeer(peer?: Peer): Promise<Channel | undefined> {
-		if (typeof peer?.channelId === "undefined") return;
+	public async getChannelByPeer(peer?: Peer): Promise<IChannel & IMongooseMeta> {
+		if (typeof peer?.channelId === "undefined") {
+			throw new Error("Peer is not a channel");
+		}
 
-		try {
-			return await Channel.findOne({ reference: peer.channelId.toString() });
-		} catch {}
+		return await this.channelService.read(peer.channelId.toString());
 	}
 
 	@Decorators.Logger("Searching channels in CosmosDB")
-	public async getCosmosChannels(): Promise<Channel[]> {
-		try {
-			const [channels] = await Channel.findMany({ limit: Number.MAX_SAFE_INTEGER, offset: 0 });
+	public async getCosmosChannels(): Promise<Array<IChannel & IMongooseMeta>> {
+		const channels = await this.channelService.list();
 
-			return channels;
-		} catch {
-			return [];
-		}
+		return channels;
 	}
 
 	@Decorators.Logger("Searching channels in Telegram")

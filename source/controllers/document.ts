@@ -1,15 +1,18 @@
 import { type FastifyInstance, type FastifyRegisterOptions, type FastifyReply, type FastifyRequest } from "fastify";
 import { type Request } from "~types/request.js";
-import { type DocumentListQuery } from "~repositories/document/types.js";
-import { Document } from "~repositories/document/model.js";
 import { StatusCodes } from "http-status-codes";
 import { AzureStorage } from "~core/blob-storage/provider.js";
 import { LocalStorage } from "~core/local-storage/provider.js";
 import { StoragePathType } from "~types/blob-storage.js";
 import { Validations } from "~core/http/validations.js";
+import { DocumentService } from "~services/documents/class.js";
+import { StorageAzure } from "~database/models/document.js";
+import { Types } from "mongoose";
 
 export class DocumentController {
-	public async create(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+	private readonly documentService = new DocumentService();
+
+	public async create(request: FastifyRequest<Request.Document.Create>, reply: FastifyReply): Promise<void> {
 		const localStorage = new LocalStorage();
 		const azureStorage = new AzureStorage();
 
@@ -24,45 +27,46 @@ export class DocumentController {
 		const size = await localStorage.getSize(filename);
 		await localStorage.destroy(filename);
 
-		const file = await Document.create({
+		const document = await this.documentService.create({
 			size,
 			name: fileInfo.filename,
 			mimeType: fileInfo.mimeType,
 			location: azureResponse.url,
-			flags: Document.StorageAzure,
+			flags: StorageAzure,
+			channel: new Types.ObjectId(request.query.channelId),
 		});
 
 		reply.status(StatusCodes.CREATED).send({
 			statusCode: StatusCodes.CREATED,
-			data: file,
+			data: document,
 		});
 	}
 
 	public async getMany(request: FastifyRequest<Request.Document.GetMany>, reply: FastifyReply): Promise<void> {
-		const query: DocumentListQuery = {
-			id: request.query.id,
-			ids: request.query.ids,
-			name: request.query.name,
-			location: request.query.location,
-			mimeType: request.query.mimeType,
-			flags: request.query.flags,
-			orderBy: request.query.orderBy,
-			limit: request.query.limit,
-			offset: request.query.offset,
-		};
+		// TODO: Implement query params
+		// const query: DocumentListQuery = {
+		// 	id: request.query.id,
+		// 	ids: request.query.ids,
+		// 	name: request.query.name,
+		// 	location: request.query.location,
+		// 	mimeType: request.query.mimeType,
+		// 	flags: request.query.flags,
+		// 	orderBy: request.query.orderBy,
+		// 	limit: request.query.limit,
+		// 	offset: request.query.offset,
+		// };
 
-		const [documents, count] = await Document.findMany(query);
+		// const [documents, count] = await Document.findMany(query);
+		const documents = await this.documentService.list();
 
 		reply.status(StatusCodes.OK).send({
 			statusCode: StatusCodes.OK,
-			data: { rows: documents, count },
+			data: documents,
 		});
 	}
 
 	public async getOne(request: FastifyRequest<Request.Document.GetOne>, reply: FastifyReply): Promise<void> {
-		const document = await Document.findOne({
-			id: request.params.documentId,
-		});
+		const document = await this.documentService.read(request.params.documentId);
 
 		reply.status(StatusCodes.OK).send({
 			statusCode: StatusCodes.OK,
@@ -72,11 +76,9 @@ export class DocumentController {
 
 	public async delete(request: FastifyRequest<Request.Document.Delete>, reply: FastifyReply): Promise<void> {
 		const azureStorage = new AzureStorage();
-		const document = await Document.findOne({
-			id: request.params.documentId,
-		});
+		const document = await this.documentService.read(request.params.documentId);
 
-		await Document.delete(document.id);
+		await this.documentService.delete(document._id.toHexString());
 		await azureStorage.destroy(document.location);
 
 		reply.status(StatusCodes.OK).send({
@@ -92,6 +94,7 @@ export const DocumentControllerRouter = (fastify: FastifyInstance, _opts: Fastif
 	fastify.route({
 		method: "POST",
 		url: "/document",
+		schema: Validations.Document.Create,
 		handler: controller.create,
 	});
 

@@ -31,7 +31,14 @@ export namespace Request {
 			};
 		}
 	}
+
 	export namespace Document {
+		export interface Create {
+			Querystring: {
+				channelId: string;
+			};
+		}
+
 		export interface Delete {
 			Params: {
 				documentId: string;
@@ -82,6 +89,39 @@ export namespace Request {
 				chatId: string;
 				text: string;
 				button?: { url: string; text: string };
+			};
+		}
+	}
+
+	export namespace Webhook {
+		export interface GetWebhook {
+			Params: {
+				channelId: string;
+			};
+		}
+
+		export interface GetWebhooks {
+			Querystring: {
+				id?: string;
+				ids?: string[];
+				channelId?: string;
+				orderBy?: string;
+				limit: number;
+				offset: number;
+			};
+		}
+
+		export interface CreateWebhook {
+			Body: {
+				channelId: string;
+				url: string;
+				token: string;
+			};
+		}
+
+		export interface DeleteWebhook {
+			Params: {
+				channelId: string;
 			};
 		}
 	}

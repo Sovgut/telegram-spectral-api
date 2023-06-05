@@ -19,13 +19,21 @@ export namespace Decorators {
 			}
 
 			descriptor.value = async function (...args: unknown[]) {
-				logger.log({
+				await logger.log({
 					message,
-					scope: `${target.constructor.name}:${original.name}`,
+					scope: `${target.constructor.name}:${original.name}:call`,
 					arguments: args,
 				});
 
-				return await original.apply(this, args);
+				const result = await original.call(this, ...args);
+
+				await logger.log({
+					message,
+					result,
+					scope: `${target.constructor.name}:${original.name}:result`,
+				});
+
+				return result;
 			};
 		};
 	};

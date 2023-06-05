@@ -1,3 +1,3 @@
 export class AzureStorageResponse {
-	constructor(public readonly url: string, public readonly filename: string, public readonly mimeType: string | undefined) {}
+	constructor(readonly url: string, readonly filename: string, readonly mimeType: string | undefined) {}
 }

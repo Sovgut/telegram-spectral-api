@@ -10,6 +10,7 @@
 			"~controllers/*": ["./controllers/*"],
 			"~services/*": ["./services/*"],
 			"~validations": ["./validations.js"],
+			"~database/*": ["./database/*"],
 			"~types/*": ["./types/*"],
 			"~core/*": ["./core/*"],
 			"~application": ["./application.js"],

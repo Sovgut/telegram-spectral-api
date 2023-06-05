@@ -1,18 +1,18 @@
 import { type FastifyInstance, type FastifyRegisterOptions, type FastifyReply, type FastifyRequest } from "fastify";
 import { type Request } from "~types/request.js";
-import { Document } from "~repositories/document/model.js";
 import { Core } from "~core/namespace.js";
-import { Telegram } from "~repositories/telegram/model.js";
+import { TelegramService } from "~services/telegram/class.js";
 import { StatusCodes } from "http-status-codes";
 import { Validations } from "~core/http/validations.js";
+import { DocumentService } from "~services/documents/class.js";
 
 export class PublishController {
-	private readonly telegram = new Telegram();
+	private readonly telegram = new TelegramService();
+	private readonly documentService = new DocumentService();
 
 	public async media(request: FastifyRequest<Request.Publish.Media>, reply: FastifyReply): Promise<void> {
 		const { chatId, text, documentId, button } = request.body;
-
-		const document = await Document.findOne({ id: documentId });
+		const document = await this.documentService.read(documentId);
 
 		let telegramResponse: any = {};
 		if (Core.Utils.isPhoto(document.mimeType)) {
@@ -28,13 +28,16 @@ export class PublishController {
 	}
 
 	public async album(request: FastifyRequest<Request.Publish.Album>, reply: FastifyReply): Promise<void> {
-		const { chatId, text, documentIds } = request.body;
+		// TODO: Implement fetching documents from database
+		const { chatId, text /*, documentIds */ } = request.body;
+		const documents = await this.documentService.list();
 
-		const [documents] = await Document.findMany({
-			ids: documentIds,
-			limit: Number.MAX_SAFE_INTEGER,
-			offset: 0,
-		});
+		// const [documents] = await Document.findMany({
+		// 	ids: documentIds,
+		// 	limit: Number.MAX_SAFE_INTEGER,
+		// 	offset: 0,
+		// });
+
 		const telegramResponse = await this.telegram.sendAlbum(chatId, text, documents);
 
 		reply.status(StatusCodes.OK).send({

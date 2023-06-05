@@ -2,13 +2,17 @@ import { type FastifyInstance, type FastifyRegisterOptions, type FastifyReply, t
 import { type Request } from "~types/request.js";
 import { StatusCodes } from "http-status-codes";
 import { Validations } from "~core/http/validations.js";
-import { Channel } from "~repositories/channel/model.js";
 import { type ChannelEntity } from "~core/telegram/channel/types.js";
 import { TelegramChannelProvider } from "~core/telegram/channel/class.js";
+import { type IChannel } from "~database/models/channel.js";
+import { ChannelService } from "~services/channels/class.js";
+import { type IMongooseMeta } from "~types/entities.js";
 
 export class ChannelController {
+	private readonly channelService = new ChannelService();
+
 	public async listenChannel(request: FastifyRequest<Request.Channel.ListenChannel>, reply: FastifyReply): Promise<void> {
-		const channel = await Channel.create(request.body.title, request.body.reference);
+		const channel = await this.channelService.create({ reference: request.body.reference, title: request.body.title });
 
 		reply.status(StatusCodes.CREATED).send({
 			statusCode: StatusCodes.CREATED,
@@ -17,7 +21,7 @@ export class ChannelController {
 	}
 
 	public async unlistenChannel(request: FastifyRequest<Request.Channel.UnlistenChannel>, reply: FastifyReply): Promise<void> {
-		await Channel.delete(request.params.reference);
+		await this.channelService.delete(request.params.reference);
 
 		reply.status(StatusCodes.OK).send({
 			statusCode: StatusCodes.OK,
@@ -25,9 +29,7 @@ export class ChannelController {
 	}
 
 	public async getOne(request: FastifyRequest<Request.Channel.GetChannel>, reply: FastifyReply): Promise<void> {
-		const channel = await Channel.findOne({
-			reference: request.params.reference,
-		});
+		const channel = await this.channelService.read(request.params.reference);
 
 		reply.status(StatusCodes.OK).send({
 			statusCode: StatusCodes.OK,
@@ -36,19 +38,19 @@ export class ChannelController {
 	}
 
 	public async getMany(request: FastifyRequest<Request.Channel.GetChannels>, reply: FastifyReply): Promise<void> {
-		let channels: { rows: Channel[]; count: number } | ChannelEntity[] = [];
+		let channels: Array<IChannel & IMongooseMeta> | ChannelEntity[] = [];
 
 		if (request.query.source === "cosmos") {
-			const [rows, count] = await Channel.findMany({
-				id: request.query.id,
-				ids: request.query.ids,
-				reference: request.query.reference,
-				orderBy: request.query.orderBy,
-				limit: request.query.limit,
-				offset: request.query.offset,
-			});
+			// TODO: implement query params
+			//
+			// id: request.query.id,
+			// ids: request.query.ids,
+			// reference: request.query.reference,
+			// orderBy: request.query.orderBy,
+			// limit: request.query.limit,
+			// offset: request.query.offset,
 
-			channels = { rows, count };
+			channels = await this.channelService.list();
 		} else {
 			const telegramChannelProvider = new TelegramChannelProvider();
 

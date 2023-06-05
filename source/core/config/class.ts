@@ -51,7 +51,7 @@ export namespace Config {
 		if (!token) {
 			logger.error({
 				scope: "config:telegramBotToken",
-				message: "Telegram token is required",
+				message: "TELEGRAM_BOT_TOKEN is required",
 			});
 
 			process.exit(1);
@@ -66,7 +66,7 @@ export namespace Config {
 		if (isNaN(apiId)) {
 			logger.error({
 				scope: "config:telegramApiId",
-				message: "Telegram API ID is required",
+				message: "TELEGRAM_API_ID is required",
 			});
 
 			process.exit(1);
@@ -81,7 +81,7 @@ export namespace Config {
 		if (!apiHash) {
 			logger.error({
 				scope: "config:telegramApiHash",
-				message: "Telegram API Hash is required",
+				message: "TELEGRAM_API_HASH is required",
 			});
 
 			process.exit(1);
@@ -96,7 +96,7 @@ export namespace Config {
 		if (!phoneNumber) {
 			logger.error({
 				scope: "config:telegramPhoneNumber",
-				message: "Telegram phone number is required",
+				message: "TELEGRAM_PHONE_NUMBER is required",
 			});
 
 			process.exit(1);
@@ -111,7 +111,7 @@ export namespace Config {
 		if (!password) {
 			logger.error({
 				scope: "config:telegramPassword",
-				message: "Telegram password is required",
+				message: "TELEGRAM_PASSWORD is required",
 			});
 
 			process.exit(1);
@@ -126,7 +126,7 @@ export namespace Config {
 		if (!sessionString) {
 			logger.warn({
 				scope: "config:telegramSessionString",
-				message: "Telegram session string is not found.",
+				message: "TELEGRAM_SESSION_STRING is not found.",
 			});
 
 			return String();
@@ -136,12 +136,12 @@ export namespace Config {
 	}
 
 	export function azureStorageConnectionString(): string {
-		const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
+		const connectionString = process.env.AZURE_STORAGE_CONNECTIONSTRING;
 
 		if (!connectionString) {
 			logger.error({
 				scope: "config:azureStorageConnectionString",
-				message: "Azure Storage connection string is required",
+				message: "AZURE_STORAGE_CONNECTIONSTRING string is required",
 			});
 
 			process.exit(1);
@@ -156,7 +156,7 @@ export namespace Config {
 		if (!containerName) {
 			logger.error({
 				scope: "config:azureStorageContainerName",
-				message: "Azure Storage container name is required",
+				message: "AZURE_STORAGE_CONTAINER_NAME name is required",
 			});
 
 			process.exit(1);
@@ -171,7 +171,7 @@ export namespace Config {
 		if (!accountName) {
 			logger.error({
 				scope: "config:azureStorageAccountName",
-				message: "Azure Storage account name is required",
+				message: "AZURE_STORAGE_ACCOUNT_NAME name is required",
 			});
 
 			process.exit(1);
@@ -186,7 +186,7 @@ export namespace Config {
 		if (isNaN(port)) {
 			logger.error({
 				scope: "config:appPort",
-				message: "App port is required",
+				message: "APP_PORT is required",
 			});
 
 			process.exit(1);
@@ -195,13 +195,28 @@ export namespace Config {
 		return port;
 	}
 
+	export function appSecret(): string {
+		const secret = process.env.APP_SECRET;
+
+		if (!secret) {
+			logger.error({
+				scope: "config:appSecret",
+				message: "APP_SECRET is required",
+			});
+
+			process.exit(1);
+		}
+
+		return secret;
+	}
+
 	export function databaseConnectionString(): string {
-		const connectionString = process.env.DATABASE_URL;
+		const connectionString = process.env.AZURE_COSMOS_CONNECTIONSTRING;
 
 		if (!connectionString) {
 			logger.error({
 				scope: "config:databaseConnectionString",
-				message: "DATABASE_URL connection string is required",
+				message: "AZURE_COSMOS_CONNECTIONSTRING connection string is required",
 			});
 
 			process.exit(1);

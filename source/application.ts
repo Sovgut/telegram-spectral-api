@@ -9,15 +9,19 @@ import { onServerStart } from "~core/http/hooks.js";
 import { Config } from "~core/config/class.js";
 import { requestLogger } from "~core/http/request-logger.js";
 import { ChannelControllerRouter } from "~controllers/channel.js";
+import { requestAuthorization } from "~core/http/request-authorization.js";
+import { WebhookControllerRouter } from "~controllers/webhook.js";
 
 const server = Fastify({ logger: false });
 
 server.setErrorHandler(errorHandler);
 server.register(FastifyMultipart);
 server.addHook("onRequest", requestLogger);
+server.addHook("onRequest", requestAuthorization);
 server.register(DocumentControllerRouter);
 server.register(PublishControllerRouter);
 server.register(ChannelControllerRouter);
+server.register(WebhookControllerRouter);
 
 server.listen({ port: Config.appPort() }, onServerStart);
 

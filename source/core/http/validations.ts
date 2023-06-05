@@ -57,6 +57,16 @@ export namespace Validations {
 	}
 
 	export namespace Document {
+		export const Create: FastifySchema = {
+			querystring: {
+				type: "object",
+				properties: {
+					channelId: { type: "string" },
+				},
+				required: ["channelId"],
+			},
+		};
+
 		export const Delete: FastifySchema = {
 			params: {
 				type: "object",
@@ -152,6 +162,61 @@ export namespace Validations {
 					},
 				},
 				required: ["chatId", "text"],
+			},
+		};
+	}
+
+	export namespace Webhook {
+		export const Create: FastifySchema = {
+			body: {
+				type: "object",
+				properties: {
+					channelId: { type: "string" },
+					url: { type: "string" },
+					token: { type: "string" },
+				},
+				required: ["channelId", "url", "token"],
+			},
+		};
+
+		export const Delete: FastifySchema = {
+			params: {
+				type: "object",
+				properties: {
+					channelId: { type: "string" },
+				},
+				required: ["channelId"],
+			},
+		};
+
+		export const GetOne: FastifySchema = {
+			params: {
+				type: "object",
+				properties: {
+					channelId: { type: "string" },
+				},
+				required: ["channelId"],
+			},
+		};
+
+		export const GetMany: FastifySchema = {
+			querystring: {
+				type: "object",
+				properties: {
+					id: { type: "string" },
+					ids: {
+						type: "array",
+						items: { type: "string" },
+					},
+					channelId: { type: "string" },
+					orderBy: {
+						type: "string",
+						enum: ["id_desc", "id_asc", "channel_desc", "channel_asc", "createdAt_desc", "createdAt_asc"],
+						default: "createdAt_desc",
+					},
+					limit: { type: "number", default: 10 },
+					offset: { type: "number", default: 0 },
+				},
 			},
 		};
 	}

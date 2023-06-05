@@ -1,5 +1,5 @@
+import { type IDocument } from "~database/models/document.js";
 import { type IThumbnail } from "~types/common/file-service.js";
-import { type Document } from "~repositories/document/model.js";
 
 export interface IPublishTextMessage {
 	kind: "text";
@@ -9,19 +9,19 @@ export interface IPublishTextMessage {
 export interface IPublishMediaMessage {
 	kind: "media";
 	text: string;
-	document: Document;
+	document: IDocument;
 }
 
 export interface IPublishMediaGroupMessage {
 	kind: "mediaGroup";
 	text: string;
-	documents: Document[];
+	documents: IDocument[];
 }
 
 export interface IPublishAdvertisementMessage {
 	kind: "advertisement";
 	text: string;
-	document: Document;
+	document: IDocument;
 	button: {
 		text: string;
 		url: string;
