@@ -1,1 +1,1 @@
-export const DEFAULT_PORT = 80;
+export const DEFAULT_PORT = 8080;
