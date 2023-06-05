@@ -165,10 +165,10 @@ export namespace Config {
 		if (isNaN(port)) {
 			logger.warn({
 				scope: "config:appPort",
-				message: "PORT is missing. Using default port 80",
+				message: "PORT is missing. Using default port 8080",
 			});
 
-			return 80;
+			return 8080;
 		}
 
 		return port;

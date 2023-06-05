@@ -18,13 +18,12 @@ RUN npm rebuild --verbose sharp
 # Build the app
 RUN npm run build
 
-EXPOSE 80
+EXPOSE 8080
 
 # Reexport the environment variables
 # App
 ENV NODE_ENV=$NODE_ENV
 ENV PORT=$PORT
-ENV WEBSITES_PORT=80
 ENV APP_SECRET=$APP_SECRET
 ENV LOG_LEVEL=$LOG_LEVEL
 
