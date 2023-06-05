@@ -163,12 +163,12 @@ export namespace Config {
 		const port = parseInt(String(process.env.PORT), 10);
 
 		if (isNaN(port)) {
-			logger.error({
+			logger.warn({
 				scope: "config:appPort",
-				message: "PORT is required",
+				message: "PORT is missing. Using default port 80",
 			});
 
-			process.exit(1);
+			return 80;
 		}
 
 		return port;
