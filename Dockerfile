@@ -18,7 +18,7 @@ RUN npm rebuild --verbose sharp
 # Build the app
 RUN npm run build
 
-EXPOSE 80
+EXPOSE $PORT
 
 # Reexport the environment variables
 # App
