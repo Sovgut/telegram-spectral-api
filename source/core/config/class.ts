@@ -1,6 +1,7 @@
 import { join } from "node:path";
 import { config } from "dotenv";
 import { Logger } from "~core/logger.js";
+import { DEFAULT_PORT } from "./constants.js";
 
 export namespace Config {
 	const logger = new Logger();
@@ -165,10 +166,10 @@ export namespace Config {
 		if (isNaN(port)) {
 			logger.warn({
 				scope: "config:appPort",
-				message: "PORT is missing. Using default port 8080",
+				message: `PORT is missing. Using default port ${DEFAULT_PORT}`,
 			});
 
-			return 8080;
+			return DEFAULT_PORT;
 		}
 
 		return port;
