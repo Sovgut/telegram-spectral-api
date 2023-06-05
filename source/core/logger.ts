@@ -22,7 +22,7 @@ const Levels: Record<LogLevel, number> = {
 
 export class Logger {
 	private readonly transport = console.log;
-	private readonly isPrettyfied = process.env.NODE_ENV === "local";
+	private isPrettyfied = process.env.NODE_ENV === "local";
 
 	private commit(context: LoggerContext, defaultLevel: LogLevel): void {
 		const processLevel = process.env.LOG_LEVEL as LogLevel | undefined;
@@ -38,6 +38,13 @@ export class Logger {
 				this.transport(JSON.stringify(context));
 			}
 		}
+	}
+
+	/**
+	 * Reloads logger settings from environment variables
+	 */
+	public reload(): void {
+		this.isPrettyfied = process.env.NODE_ENV === "local";
 	}
 
 	public async log(context: LoggerContext): Promise<void> {

@@ -2,7 +2,6 @@ import { PlainExtension, VideoExtension } from "~core/telegram/constants.js";
 import { Core } from "~core/namespace.js";
 import ffmpeg from "fluent-ffmpeg";
 import fs from "node:fs";
-import { Config } from "~core/config/class.js";
 import { Decorators } from "~core/decorators.js";
 
 export class VideoProcessing {
@@ -15,11 +14,6 @@ export class VideoProcessing {
 	 */
 	@Decorators.Logger("Optimizing video")
 	public async optimize(inputPath: string, outputPath: string): Promise<string | never> {
-		if (!Config.isLocalBuild()) {
-			ffmpeg.setFfmpegPath(Config.ffmpegPath());
-			ffmpeg.setFfprobePath(Config.ffprobePath());
-		}
-
 		return new Promise((resolve, reject) => {
 			ffmpeg(inputPath)
 				.output(outputPath)

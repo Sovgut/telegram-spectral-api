@@ -1,19 +1,18 @@
-import os from "node:os";
 import { join } from "node:path";
 import { config } from "dotenv";
 import { Logger } from "~core/logger.js";
 
 export namespace Config {
-	let logger = new Logger();
+	const logger = new Logger();
 
 	export function load(): void {
-		const root = process.cwd();
-		const path = join(root, ".env");
-
-		config({ path });
-		logger = new Logger();
-
 		if (process.env.NODE_ENV === "local") {
+			const root = process.cwd();
+			const path = join(root, ".env");
+
+			config({ path });
+
+			logger.reload();
 			logger.log({
 				scope: "config:load",
 				message: `Config loaded from .env`,
@@ -23,26 +22,6 @@ export namespace Config {
 
 	export function isLocalBuild(): boolean {
 		return process.env.NODE_ENV === "local";
-	}
-
-	export function ffmpegPath(): string {
-		const variable = process.env["AZ_BATCH_APP_PACKAGE_ffmpeg#5.1.2"] as string;
-
-		if (os.platform() === "win32") {
-			return `${variable}\\ffmpeg.exe`;
-		}
-
-		return `${variable}/ffmpeg`;
-	}
-
-	export function ffprobePath(): string {
-		const variable = process.env["AZ_BATCH_APP_PACKAGE_ffprobe#5.1.2"] as string;
-
-		if (os.platform() === "win32") {
-			return `${variable}\\ffprobe.exe`;
-		}
-
-		return `${variable}/ffprobe`;
 	}
 
 	export function telegramBotToken(): string {
