@@ -12,7 +12,7 @@ RUN apt-get install -y libvips
 COPY . .
 
 # Install production dependencies
-RUN npm ci --only=production
+RUN npm ci --emit=dev
 RUN npm rebuild --verbose sharp
 
 # Build the app
