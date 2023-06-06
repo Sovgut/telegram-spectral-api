@@ -2,7 +2,7 @@ import { Logger } from "~core/logger/class.js";
 
 const DEFAULT_PORT = 8080;
 const DEFAULT_ENVIRONMENT = "local";
-const DEFAULT_LOG_LEVEL = "WARN";
+const DEFAULT_LOG_LEVEL = "warn";
 
 export class ApplicationConfigurationLockup {
 	private readonly logger = new Logger();
