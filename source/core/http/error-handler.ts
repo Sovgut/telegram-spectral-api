@@ -2,17 +2,20 @@ import { BaseError } from "~core/errors/base.js";
 import { type FastifyError, type FastifyReply, type FastifyRequest } from "fastify";
 import { StatusCodes } from "http-status-codes";
 import { Core } from "~core/namespace.js";
-import { Logger } from "~core/logger.js";
+import { Logger } from "~core/logger/class.js";
 import { Config } from "~core/config/class.js";
 
 export function errorHandler(error: BaseError | FastifyError | Error, request: FastifyRequest, reply: FastifyReply): unknown {
 	const logger = new Logger();
 
-	if (Config.isLocalBuild()) {
+	if (Config.App.Environment !== "production") {
 		logger.error({
 			scope: "http:middleware:errorHandler",
 			message: error?.message,
-			exception: error,
+			exception: {
+				name: error?.name,
+				stack: error?.stack,
+			},
 		});
 	}
 

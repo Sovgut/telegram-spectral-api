@@ -11,6 +11,40 @@ import { type IMongooseMeta } from "~types/entities.js";
 export class ChannelController {
 	private readonly channelService = new ChannelService();
 
+	public static register(fastify: FastifyInstance, _opts: FastifyRegisterOptions<unknown>, done: any): void {
+		const instance = new ChannelController();
+
+		fastify.route({
+			method: "POST",
+			url: "/channels",
+			schema: Validations.Channel.ListenChannel,
+			handler: instance.listenChannel.bind(instance),
+		});
+
+		fastify.route({
+			method: "DELETE",
+			url: "/channels/:reference",
+			schema: Validations.Channel.UnlistenChannel,
+			handler: instance.unlistenChannel.bind(instance),
+		});
+
+		fastify.route({
+			method: "GET",
+			url: "/channels/:channelId",
+			schema: Validations.Channel.GetChannel,
+			handler: instance.getOne.bind(instance),
+		});
+
+		fastify.route({
+			method: "GET",
+			url: "/channels",
+			schema: Validations.Channel.GetChannels,
+			handler: instance.getMany.bind(instance),
+		});
+
+		done();
+	}
+
 	public async listenChannel(request: FastifyRequest<Request.Channel.ListenChannel>, reply: FastifyReply): Promise<void> {
 		const channel = await this.channelService.create({ reference: request.body.reference, title: request.body.title });
 
@@ -63,37 +97,3 @@ export class ChannelController {
 		});
 	}
 }
-
-export const ChannelControllerRouter = (fastify: FastifyInstance, _opts: FastifyRegisterOptions<unknown>, done: any): void => {
-	const controller = new ChannelController();
-
-	fastify.route({
-		method: "POST",
-		url: "/channels",
-		schema: Validations.Channel.ListenChannel,
-		handler: controller.listenChannel,
-	});
-
-	fastify.route({
-		method: "DELETE",
-		url: "/channels/:reference",
-		schema: Validations.Channel.UnlistenChannel,
-		handler: controller.unlistenChannel,
-	});
-
-	fastify.route({
-		method: "GET",
-		url: "/channels/:channelId",
-		schema: Validations.Channel.GetChannel,
-		handler: controller.getOne,
-	});
-
-	fastify.route({
-		method: "GET",
-		url: "/channels",
-		schema: Validations.Channel.GetChannels,
-		handler: controller.getMany,
-	});
-
-	done();
-};

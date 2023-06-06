@@ -7,7 +7,7 @@ import { type ReadStream } from "node:fs";
 import { AzureStorage } from "~core/blob-storage/provider.js";
 import { StoragePathType } from "~types/blob-storage.js";
 import { PhotoProcessing } from "~core/processing/photo.js";
-import { Logger } from "~core/logger.js";
+import { Logger } from "~core/logger/class.js";
 import { Config } from "~core/config/class.js";
 import { Decorators } from "~core/decorators.js";
 import { type IDocument } from "~database/models/document.js";
@@ -118,7 +118,7 @@ export class TelegramService {
 
 		const options = {
 			hostname: "api.telegram.org",
-			path: `/bot${Config.telegramBotToken()}/sendMessage`,
+			path: `/bot${Config.Telegram.BotToken}/sendMessage`,
 			method: "POST",
 			headers: form.getHeaders(),
 		};
@@ -148,7 +148,7 @@ export class TelegramService {
 
 		const options = {
 			hostname: "api.telegram.org",
-			path: `/bot${Config.telegramBotToken()}/sendPhoto`,
+			path: `/bot${Config.Telegram.BotToken}/sendPhoto`,
 			method: "POST",
 			headers: form.getHeaders(),
 		};
@@ -181,7 +181,7 @@ export class TelegramService {
 
 		const options = {
 			hostname: "api.telegram.org",
-			path: `/bot${Config.telegramBotToken()}/sendVideo`,
+			path: `/bot${Config.Telegram.BotToken}/sendVideo`,
 			method: "POST",
 			headers: form.getHeaders(),
 		};
@@ -202,7 +202,7 @@ export class TelegramService {
 
 		const options = {
 			hostname: "api.telegram.org",
-			path: `/bot${Config.telegramBotToken()}/sendMediaGroup`,
+			path: `/bot${Config.Telegram.BotToken}/sendMediaGroup`,
 			method: "POST",
 			headers: form.getHeaders(),
 		};

@@ -10,6 +10,33 @@ export class PublishController {
 	private readonly telegram = new TelegramService();
 	private readonly documentService = new DocumentService();
 
+	public static register(fastify: FastifyInstance, _opts: FastifyRegisterOptions<unknown>, done: any): void {
+		const instance = new PublishController();
+
+		fastify.route({
+			method: "POST",
+			url: "/publish/media",
+			schema: Validations.Publish.Media,
+			handler: instance.media.bind(instance),
+		});
+
+		fastify.route({
+			method: "POST",
+			url: "/publish/media-group",
+			schema: Validations.Publish.Album,
+			handler: instance.album.bind(instance),
+		});
+
+		fastify.route({
+			method: "POST",
+			url: "/publish/text",
+			schema: Validations.Publish.Text,
+			handler: instance.text.bind(instance),
+		});
+
+		done();
+	}
+
 	public async media(request: FastifyRequest<Request.Publish.Media>, reply: FastifyReply): Promise<void> {
 		const { chatId, text, documentId, button } = request.body;
 		const document = await this.documentService.read(documentId);
@@ -57,30 +84,3 @@ export class PublishController {
 		});
 	}
 }
-
-export const PublishControllerRouter = (fastify: FastifyInstance, _opts: FastifyRegisterOptions<unknown>, done: any): void => {
-	const controller = new PublishController();
-
-	fastify.route({
-		method: "POST",
-		url: "/publish/media",
-		schema: Validations.Publish.Media,
-		handler: controller.media,
-	});
-
-	fastify.route({
-		method: "POST",
-		url: "/publish/media-group",
-		schema: Validations.Publish.Album,
-		handler: controller.album,
-	});
-
-	fastify.route({
-		method: "POST",
-		url: "/publish/text",
-		schema: Validations.Publish.Text,
-		handler: controller.text,
-	});
-
-	done();
-};

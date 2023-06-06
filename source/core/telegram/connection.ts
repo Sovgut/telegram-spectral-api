@@ -2,12 +2,12 @@ import { Logger as TelegramLogger, TelegramClient } from "telegram";
 import { StringSession } from "telegram/sessions/StringSession.js";
 import inquirer from "inquirer";
 import { LogLevel } from "telegram/extensions/Logger.js";
-import { Logger } from "~core/logger.js";
+import { Logger } from "~core/logger/class.js";
 import { Config } from "~core/config/class.js";
 
 export class TelegramConnectionProvider {
-	private readonly stringSession: StringSession = new StringSession(Config.telegramSessionString());
-	private readonly client: TelegramClient = new TelegramClient(this.stringSession, Config.telegramApiId(), Config.telegramApiHash(), {
+	private readonly stringSession: StringSession = new StringSession(Config.Telegram.SessionString);
+	private readonly client: TelegramClient = new TelegramClient(this.stringSession, Config.Telegram.ApiId, Config.Telegram.ApiHash, {
 		appVersion: "1.0.0",
 		deviceModel: "SpectralAPI",
 		langCode: "en",
@@ -35,8 +35,8 @@ export class TelegramConnectionProvider {
 		const logger = new Logger();
 
 		await this.client.start({
-			phoneNumber: async () => Config.telegramPhoneNumber(),
-			password: async () => Config.telegramPassword(),
+			phoneNumber: async () => Config.Telegram.PhoneNumber,
+			password: async () => Config.Telegram.Password,
 			phoneCode: async () => {
 				const { code } = await inquirer.prompt<{ code: number }>([
 					{

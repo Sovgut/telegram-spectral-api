@@ -2,7 +2,7 @@ import fs from "node:fs";
 import { nanoid } from "nanoid";
 import { NewMessage, type NewMessageEvent } from "telegram/events/NewMessage.js";
 import { TelegramConnectionProvider } from "../connection.js";
-import { Logger } from "~core/logger.js";
+import { Logger } from "~core/logger/class.js";
 import { TelegramChannelProvider } from "../channel/class.js";
 import { type Peer } from "../channel/types.js";
 import { Decorators } from "~core/decorators.js";

@@ -111,8 +111,9 @@ export class LocalStorage {
 	@Decorators.Logger("Reading file from local storage")
 	public async read(filename: string, pathType: StoragePathType = StoragePathType.Url): Promise<ReadStream> {
 		const preparedFilename = this.getFilename(filename, pathType);
+		const path = Core.Utils.rootPath(`temp/${preparedFilename}`);
 
-		return fs.createReadStream(Core.Utils.rootPath(`temp/${preparedFilename}`));
+		return Promise.resolve(fs.createReadStream(path));
 	}
 
 	/**

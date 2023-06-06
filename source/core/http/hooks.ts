@@ -1,4 +1,4 @@
-import { Logger } from "~core/logger.js";
+import { Logger } from "~core/logger/class.js";
 import { TelegramWatcher } from "~core/telegram/watcher/class.js";
 
 export const onServerStart = async (error: Error | null, address: string): Promise<void> => {

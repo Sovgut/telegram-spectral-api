@@ -1,10 +1,10 @@
-import { Logger as InternalLogger } from "./logger.js";
+import { Logger as InternalLogger } from "./logger/class.js";
 
 interface Descriptor<T> {
 	value: T;
 }
 
-type DescriptorFunction = Descriptor<(...args: unknown[]) => Promise<void>>;
+type DescriptorFunction = Descriptor<(...args: unknown[]) => void>;
 
 export namespace Decorators {
 	export const Logger = (message: string): MethodDecorator => {
@@ -18,22 +18,14 @@ export namespace Decorators {
 				throw new Error(`Logger decorator can only be applied to methods not: ${typeof original}`);
 			}
 
-			descriptor.value = async function (...args: unknown[]) {
-				await logger.log({
+			descriptor.value = function (...args: unknown[]) {
+				logger.log({
 					message,
-					scope: `${target.constructor.name}:${original.name}:call`,
+					scope: `${target.constructor.name}:${original.name}`,
 					arguments: args,
 				});
 
-				const result = await original.call(this, ...args);
-
-				await logger.log({
-					message,
-					result,
-					scope: `${target.constructor.name}:${original.name}:result`,
-				});
-
-				return result;
+				return original.call(this, ...args);
 			};
 		};
 	};

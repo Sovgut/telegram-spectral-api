@@ -1,6 +1,6 @@
 import { Mongoose } from "mongoose";
 import { Config } from "~core/config/class.js";
-import { Logger } from "~core/logger.js";
+import { Logger } from "~core/logger/class.js";
 
 const logger = new Logger();
 const client = new Mongoose({
@@ -12,9 +12,9 @@ await logger.log({
 	message: "Connecting to database...",
 });
 
-export const connection = await client.connect(Config.databaseConnectionString(), {
+export const connection = await client.connect(Config.Azure.CosmosConnectionString, {
 	appName: "Spectral API",
-	dbName: "spectral-api-database",
+	dbName: Config.Azure.CosmosDatabaseName,
 });
 
 process.on("SIGINT", async () => {

@@ -1,4 +1,4 @@
-import { type FastifyInstance, type FastifyRegisterOptions, type FastifyReply, type FastifyRequest } from "fastify";
+import { type FastifyRegisterOptions, type FastifyInstance, type FastifyReply, type FastifyRequest } from "fastify";
 import { type Request } from "~types/request.js";
 import { StatusCodes } from "http-status-codes";
 import { AzureStorage } from "~core/blob-storage/provider.js";
@@ -11,6 +11,40 @@ import { Types } from "mongoose";
 
 export class DocumentController {
 	private readonly documentService = new DocumentService();
+
+	public static register(fastify: FastifyInstance, _opts: FastifyRegisterOptions<unknown>, done: any): void {
+		const instance = new DocumentController();
+
+		fastify.route({
+			method: "POST",
+			url: "/document",
+			schema: Validations.Document.Create,
+			handler: instance.create.bind(instance),
+		});
+
+		fastify.route({
+			method: "DELETE",
+			url: "/document/:documentId",
+			schema: Validations.Document.Delete,
+			handler: instance.delete.bind(instance),
+		});
+
+		fastify.route({
+			method: "GET",
+			url: "/document/:documentId",
+			schema: Validations.Document.GetOne,
+			handler: instance.getOne.bind(instance),
+		});
+
+		fastify.route({
+			method: "GET",
+			url: "/document",
+			schema: Validations.Document.GetMany,
+			handler: instance.getMany.bind(instance),
+		});
+
+		done();
+	}
 
 	public async create(request: FastifyRequest<Request.Document.Create>, reply: FastifyReply): Promise<void> {
 		const localStorage = new LocalStorage();
@@ -87,37 +121,3 @@ export class DocumentController {
 		});
 	}
 }
-
-export const DocumentControllerRouter = (fastify: FastifyInstance, _opts: FastifyRegisterOptions<unknown>, done: any): void => {
-	const controller = new DocumentController();
-
-	fastify.route({
-		method: "POST",
-		url: "/document",
-		schema: Validations.Document.Create,
-		handler: controller.create,
-	});
-
-	fastify.route({
-		method: "DELETE",
-		url: "/document/:documentId",
-		schema: Validations.Document.Delete,
-		handler: controller.delete,
-	});
-
-	fastify.route({
-		method: "GET",
-		url: "/document/:documentId",
-		schema: Validations.Document.GetOne,
-		handler: controller.getOne,
-	});
-
-	fastify.route({
-		method: "GET",
-		url: "/document",
-		schema: Validations.Document.GetMany,
-		handler: controller.getMany,
-	});
-
-	done();
-};

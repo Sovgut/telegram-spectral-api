@@ -8,6 +8,40 @@ import { Types } from "mongoose";
 export class WebhookController {
 	private readonly webhookService = new WebhookService();
 
+	public static register(fastify: FastifyInstance, _opts: FastifyRegisterOptions<unknown>, done: any): void {
+		const instance = new WebhookController();
+
+		fastify.route({
+			method: "POST",
+			url: "/webhook",
+			schema: Validations.Webhook.Create,
+			handler: instance.createWebhook.bind(instance),
+		});
+
+		fastify.route({
+			method: "DELETE",
+			url: "/webhook/:channelId",
+			schema: Validations.Webhook.Delete,
+			handler: instance.deleteWebhook.bind(instance),
+		});
+
+		fastify.route({
+			method: "GET",
+			url: "/webhook/:channelId",
+			schema: Validations.Webhook.GetOne,
+			handler: instance.getWebhook.bind(instance),
+		});
+
+		fastify.route({
+			method: "GET",
+			url: "/webhook",
+			schema: Validations.Webhook.GetMany,
+			handler: instance.getWebhooks.bind(instance),
+		});
+
+		done();
+	}
+
 	public async createWebhook(request: FastifyRequest<Request.Webhook.CreateWebhook>, reply: FastifyReply): Promise<void> {
 		const channel = await this.webhookService.create({
 			channel: new Types.ObjectId(request.body.channelId),
@@ -47,37 +81,3 @@ export class WebhookController {
 		});
 	}
 }
-
-export const WebhookControllerRouter = (fastify: FastifyInstance, _opts: FastifyRegisterOptions<unknown>, done: any): void => {
-	const controller = new WebhookController();
-
-	fastify.route({
-		method: "POST",
-		url: "/webhook",
-		schema: Validations.Webhook.Create,
-		handler: controller.createWebhook,
-	});
-
-	fastify.route({
-		method: "DELETE",
-		url: "/webhook/:channelId",
-		schema: Validations.Webhook.Delete,
-		handler: controller.deleteWebhook,
-	});
-
-	fastify.route({
-		method: "GET",
-		url: "/webhook/:channelId",
-		schema: Validations.Webhook.GetOne,
-		handler: controller.getWebhook,
-	});
-
-	fastify.route({
-		method: "GET",
-		url: "/webhook",
-		schema: Validations.Webhook.GetMany,
-		handler: controller.getWebhooks,
-	});
-
-	done();
-};

@@ -47,7 +47,7 @@ export namespace Core {
 		 * @returns Absolute path to file from root directory
 		 */
 		export const rootPath = (filepath: string): string => {
-			return path.join(path.dirname(url.fileURLToPath(import.meta.url)), "../../..", filepath);
+			return path.join(path.dirname(url.fileURLToPath(import.meta.url)), "../..", filepath);
 		};
 
 		/**

@@ -9,7 +9,7 @@ import { Core } from "~core/namespace.js";
 import { Decorators } from "~core/decorators.js";
 
 export class AzureStorage {
-	private readonly client = BlobServiceClient.fromConnectionString(Config.azureStorageConnectionString());
+	private readonly client = BlobServiceClient.fromConnectionString(Config.Azure.StorageConnectionString);
 
 	/**
 	 * Checks if container exists in Azure Storage
@@ -89,8 +89,8 @@ export class AzureStorage {
 	 */
 	@Decorators.Logger("Creating response object for uploaded file")
 	private createResponse(filename: string, mimeType?: string): AzureStorageResponse {
-		const account = Config.azureStorageAccountName();
-		const container = Config.azureStorageContainerName();
+		const account = Config.Azure.StorageAccountName;
+		const container = Config.Azure.StorageContainerName;
 
 		return new AzureStorageResponse(`https://${account}.blob.core.windows.net/${container}/${filename}`, filename, mimeType);
 	}
@@ -104,13 +104,13 @@ export class AzureStorage {
 	 */
 	@Decorators.Logger("Uploading file to Azure Storage")
 	public async write(stream: internal.Readable, options: IWriteOptions = {}): Promise<AzureStorageResponse> {
-		if (!(await this.isContainerExists(Config.azureStorageContainerName()))) {
-			await this.createContainer(Config.azureStorageContainerName());
+		if (!(await this.isContainerExists(Config.Azure.StorageContainerName))) {
+			await this.createContainer(Config.Azure.StorageContainerName);
 		}
 
 		const filename = this.createFilename(options.fileName, options.mimeType);
 		const headers = this.getHeaders(options.mimeType);
-		const container = this.client.getContainerClient(Config.azureStorageContainerName());
+		const container = this.client.getContainerClient(Config.Azure.StorageContainerName);
 		const blockBlobClient = container.getBlockBlobClient(filename);
 
 		await blockBlobClient.uploadStream(stream, undefined, undefined, headers);
@@ -129,7 +129,7 @@ export class AzureStorage {
 	public async read(fileName: string, pathType: StoragePathType = StoragePathType.Url): Promise<string> {
 		const preparedFilename = this.getFilename(fileName, pathType);
 		const path = Core.Utils.rootPath(`temp/${preparedFilename}`);
-		const container = this.client.getContainerClient(Config.azureStorageContainerName());
+		const container = this.client.getContainerClient(Config.Azure.StorageContainerName);
 		const blockBlobClient = container.getBlockBlobClient(preparedFilename);
 
 		await blockBlobClient.downloadToFile(path);
@@ -146,7 +146,7 @@ export class AzureStorage {
 	@Decorators.Logger("Deleting file from Azure Storage")
 	public async destroy(fileName: string, pathType: StoragePathType = StoragePathType.Url): Promise<BlobDeleteResponse> {
 		const preparedFilename = this.getFilename(fileName, pathType);
-		const container = this.client.getContainerClient(Config.azureStorageContainerName());
+		const container = this.client.getContainerClient(Config.Azure.StorageContainerName);
 		const blockBlobClient = container.getBlockBlobClient(preparedFilename);
 
 		return await blockBlobClient.delete();

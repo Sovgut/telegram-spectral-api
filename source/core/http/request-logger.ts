@@ -1,5 +1,5 @@
 import { type FastifyReply, type FastifyRequest } from "fastify";
-import { Logger } from "~core/logger.js";
+import { Logger } from "~core/logger/class.js";
 
 export function requestLogger(request: FastifyRequest, reply: FastifyReply, done: (error?: Error | undefined) => void): unknown {
 	const logger = new Logger();
