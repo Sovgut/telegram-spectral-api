@@ -86,8 +86,8 @@ export class TelegramService {
 			});
 
 			request.on("error", (error) => {
-				new Logger().error({
-					scope: "Telegram:request",
+				new Logger("Telegram").error({
+					scope: "request",
 					message: error?.message,
 					exception: error,
 				});

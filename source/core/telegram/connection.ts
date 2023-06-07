@@ -1,15 +1,17 @@
+import inquirer from "inquirer";
 import { Logger as TelegramLogger, TelegramClient } from "telegram";
 import { StringSession } from "telegram/sessions/StringSession.js";
-import inquirer from "inquirer";
 import { LogLevel } from "telegram/extensions/Logger.js";
 import { Logger } from "~core/logger/class.js";
 import { Config } from "~core/config/class.js";
+import { Core } from "~core/namespace.js";
 
 export class TelegramConnectionProvider {
+	private readonly logger = new Logger("TelegramConnectionProvider");
 	private readonly stringSession: StringSession = new StringSession(Config.Telegram.SessionString);
 	private readonly client: TelegramClient = new TelegramClient(this.stringSession, Config.Telegram.ApiId, Config.Telegram.ApiHash, {
-		appVersion: "1.0.0",
-		deviceModel: "SpectralAPI",
+		appVersion: Core.Utils.getAppInfo().version,
+		deviceModel: Core.Utils.getAppInfo().name,
 		langCode: "en",
 		connectionRetries: 5,
 		requestRetries: 1,
@@ -32,8 +34,6 @@ export class TelegramConnectionProvider {
 	}
 
 	public async createSessionString(): Promise<void> {
-		const logger = new Logger();
-
 		await this.client.start({
 			phoneNumber: async () => Config.Telegram.PhoneNumber,
 			password: async () => Config.Telegram.Password,
@@ -53,8 +53,8 @@ export class TelegramConnectionProvider {
 
 		const sessionString = this.stringSession.save() as unknown as string;
 
-		await logger.info({
-			scope: "TelegramConnectionProvider:createSessionString",
+		await this.logger.info({
+			scope: "createSessionString",
 			message: `You should now be connected. Store this session string into TELEGRAM_SESSION_STRING: ${sessionString}`,
 		});
 		await this.client.sendMessage("me", { message: "Connected" });

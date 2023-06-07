@@ -1,14 +1,14 @@
 import { Logger } from "~core/logger/class.js";
 
 export class AzureConfigurationLockup {
-	private readonly logger = new Logger();
+	private readonly logger = new Logger("Config:AzureConfigurationLockup");
 
 	public get StorageConnectionString(): string {
 		const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
 
 		if (!connectionString) {
 			this.logger.error({
-				scope: "Config:AzureConfigurationLockup:StorageConnectionString",
+				scope: "StorageConnectionString",
 				message: "AZURE_STORAGE_CONNECTION_STRING is required",
 			});
 

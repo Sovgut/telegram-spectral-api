@@ -8,9 +8,8 @@ type DescriptorFunction = Descriptor<(...args: unknown[]) => void>;
 
 export namespace Decorators {
 	export const Logger = (message: string): MethodDecorator => {
-		const logger = new InternalLogger();
-
 		return function (target, _propertyKey, initialDescriptor) {
+			const logger = new InternalLogger(target.constructor.name);
 			const descriptor = initialDescriptor as DescriptorFunction;
 			const original = descriptor.value;
 
@@ -21,7 +20,7 @@ export namespace Decorators {
 			descriptor.value = function (...args: unknown[]) {
 				logger.log({
 					message,
-					scope: `${target.constructor.name}:${original.name}`,
+					scope: original.name,
 					arguments: args,
 				});
 

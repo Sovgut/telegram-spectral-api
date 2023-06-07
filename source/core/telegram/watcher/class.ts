@@ -6,7 +6,7 @@ import { Logger } from "~core/logger/class.js";
 import { TelegramChannelProvider } from "../channel/class.js";
 import { type Peer } from "../channel/types.js";
 import { Decorators } from "~core/decorators.js";
-import { invokeWebhook } from "~core/http/invoke-webhook.js";
+import { Http } from "~core/http/class.js";
 import { Core } from "~core/namespace.js";
 import { LocalStorage } from "~core/local-storage/provider.js";
 import { AzureStorage } from "~core/blob-storage/provider.js";
@@ -28,7 +28,8 @@ export class TelegramWatcher {
 	private readonly videoProcessing = new VideoProcessing();
 	private readonly localStorage = new LocalStorage();
 	private readonly azureStorage = new AzureStorage();
-	private readonly logger = new Logger();
+	private readonly logger = new Logger("TelegramWatcher");
+	private readonly http = new Http();
 
 	private async onMessage(event: NewMessageEvent): Promise<void> {
 		try {
@@ -116,7 +117,7 @@ export class TelegramWatcher {
 				media,
 			});
 
-			await invokeWebhook(webhook, {
+			await this.http.invokeWebhook(webhook, {
 				channelId: channel._id,
 				message: event.message.text,
 				groupId: event.message.groupedId?.toString(),
@@ -125,7 +126,7 @@ export class TelegramWatcher {
 		} catch (error) {
 			if (!(error instanceof NotFoundError) && error instanceof Error) {
 				await this.logger.error({
-					scope: "TelegramWatcher::start",
+					scope: "start",
 					message: "Error while processing message",
 					exception: {
 						message: error.message,

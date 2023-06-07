@@ -1,11 +1,32 @@
 import * as _Constants from "./constants.js";
 import path from "node:path";
 import url from "node:url";
+import fs from "node:fs";
 
 export namespace Core {
 	export const Constants = _Constants;
 
 	export namespace Utils {
+		let appInfo: { name: string; version: string } | undefined;
+
+		/**
+		 * Get application name and version from package.json
+		 *
+		 * @returns Application name and version
+		 * @throws Error if package.json not found
+		 * @throws Error if package.json is invalid
+		 */
+		export const getAppInfo = (): { name: string; version: string } | never => {
+			if (appInfo !== undefined) {
+				return appInfo;
+			}
+
+			const path = Core.Utils.rootPath("package.json");
+			const data = fs.readFileSync(path, "utf-8");
+
+			return (appInfo = JSON.parse(data));
+		};
+
 		/**
 		 * Extract filename from path to file or url
 		 *

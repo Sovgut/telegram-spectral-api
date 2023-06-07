@@ -1,14 +1,14 @@
 import { Logger } from "~core/logger/class.js";
 
 export class TelegramConfigurationLockup {
-	private readonly logger = new Logger();
+	private readonly logger = new Logger("Config:TelegramConfigurationLockup");
 
 	public get ApiId(): number {
 		const apiId = parseInt(String(process.env.TELEGRAM_API_ID), 10);
 
 		if (isNaN(apiId)) {
 			this.logger.error({
-				scope: "Config:TelegramConfigurationLockup:ApiId",
+				scope: "ApiId",
 				message: "TELEGRAM_API_ID is required",
 			});
 

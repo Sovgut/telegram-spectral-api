@@ -8,6 +8,8 @@ export class Logger {
 		transport: this.createTransport(),
 	});
 
+	constructor(readonly parentScope: string) {}
+
 	private createTransport(): TransportSingleOptions | TransportMultiOptions | TransportPipelineOptions | undefined {
 		if (process.env.NODE_ENV === "production") {
 			return undefined;
@@ -23,6 +25,7 @@ export class Logger {
 
 	private commit(context: LoggerContext, level: LogLevel): void {
 		context.timestamp = new Date().toISOString();
+		context.scope = `${this.parentScope}:${context.scope}`;
 
 		switch (level) {
 			case LogLevel.DEBUG:

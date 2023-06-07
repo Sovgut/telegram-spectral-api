@@ -5,14 +5,14 @@ const DEFAULT_ENVIRONMENT = "local";
 const DEFAULT_LOG_LEVEL = "warn";
 
 export class ApplicationConfigurationLockup {
-	private readonly logger = new Logger();
+	private readonly logger = new Logger("Config:ApplicationConfigurationLockup");
 
 	public get Port(): number {
 		const port = parseInt(String(process.env.PORT), 10);
 
 		if (isNaN(port)) {
 			this.logger.warn({
-				scope: "Config:ApplicationConfigurationLockup:Port",
+				scope: "Port",
 				message: `PORT is missing. Using default port "${DEFAULT_PORT}"`,
 			});
 
