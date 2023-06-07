@@ -6,9 +6,6 @@ export class ForbiddenError extends BaseError {
 		super(message);
 	}
 
-	public override get statusCode(): number {
-		return StatusCodes.FORBIDDEN;
-	}
-
+	public override readonly statusCode: number = StatusCodes.FORBIDDEN;
 	public override readonly key: string = this.messageKey ?? "forbidden";
 }

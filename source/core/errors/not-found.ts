@@ -6,9 +6,6 @@ export class NotFoundError extends BaseError {
 		super(message);
 	}
 
-	public override get statusCode(): number {
-		return StatusCodes.NOT_FOUND;
-	}
-
+	public override readonly statusCode: number = StatusCodes.NOT_FOUND;
 	public override readonly key: string = this.messageKey ?? "not_found";
 }

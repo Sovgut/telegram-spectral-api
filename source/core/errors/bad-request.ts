@@ -6,9 +6,6 @@ export class BadRequestError extends BaseError {
 		super(message);
 	}
 
-	public override get statusCode(): number {
-		return StatusCodes.BAD_REQUEST;
-	}
-
+	public override readonly statusCode: number = StatusCodes.BAD_REQUEST;
 	public override readonly key: string = this.messageKey ?? "bad_request";
 }

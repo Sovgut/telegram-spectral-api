@@ -6,9 +6,6 @@ export class ConflictError extends BaseError {
 		super(message);
 	}
 
-	public override get statusCode(): number {
-		return StatusCodes.CONFLICT;
-	}
-
+	public override readonly statusCode: number = StatusCodes.CONFLICT;
 	public override readonly key: string = this.messageKey ?? "conflict";
 }

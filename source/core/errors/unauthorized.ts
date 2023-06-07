@@ -6,9 +6,6 @@ export class UnauthorizedError extends BaseError {
 		super(message);
 	}
 
-	public override get statusCode(): number {
-		return StatusCodes.UNAUTHORIZED;
-	}
-
+	public override readonly statusCode: number = StatusCodes.UNAUTHORIZED;
 	public override readonly key: string = this.messageKey ?? "unauthorized";
 }
