@@ -9,13 +9,9 @@
 		"paths": {
 			"~controllers/*": ["./controllers/*"],
 			"~services/*": ["./services/*"],
-			"~validations": ["./validations.js"],
 			"~database/*": ["./database/*"],
 			"~types/*": ["./types/*"],
 			"~core/*": ["./core/*"],
-			"~application": ["./application.js"],
-			"~environment": ["./core/config.js"],
-			"~repositories/*": ["./repositories/*"]
 		},
 		"sourceMap": true,
 		"outDir": "./build",
