@@ -1,4 +1,4 @@
-FROM node:20
+FROM node:20-bullseye-slim
 
 # Set the working directory
 WORKDIR /usr/app
@@ -18,6 +18,8 @@ RUN npm rebuild --verbose sharp
 # Build the app
 RUN npm run build
 
+ENV HOST 0.0.0.0
+ENV PORT 8080
 EXPOSE 8080
 
 # Run the app

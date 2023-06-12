@@ -23,7 +23,7 @@ export class AzureConfigurationLockup {
 
 		if (!containerName) {
 			this.logger.error({
-				scope: "Config:AzureConfigurationLockup:StorageContainerName",
+				scope: "StorageContainerName",
 				message: "AZURE_STORAGE_CONTAINER_NAME is required",
 			});
 
@@ -38,7 +38,7 @@ export class AzureConfigurationLockup {
 
 		if (!accountName) {
 			this.logger.error({
-				scope: "Config:AzureConfigurationLockup:StorageAccountName",
+				scope: "StorageAccountName",
 				message: "AZURE_STORAGE_ACCOUNT_NAME is required",
 			});
 
@@ -53,7 +53,7 @@ export class AzureConfigurationLockup {
 
 		if (!connectionString) {
 			this.logger.error({
-				scope: "Config:AzureConfigurationLockup:CosmosConnectionString",
+				scope: "CosmosConnectionString",
 				message: "AZURE_COSMOS_CONNECTION_STRING is required",
 			});
 
@@ -68,7 +68,7 @@ export class AzureConfigurationLockup {
 
 		if (!databaseName) {
 			this.logger.error({
-				scope: "Config:AzureConfigurationLockup:CosmosDatabaseName",
+				scope: "CosmosDatabaseName",
 				message: "AZURE_COSMOS_DATABASE_NAME is required",
 			});
 

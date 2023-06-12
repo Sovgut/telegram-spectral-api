@@ -23,7 +23,7 @@ export class TelegramConfigurationLockup {
 
 		if (!apiHash) {
 			this.logger.error({
-				scope: "Config:TelegramConfigurationLockup:ApiHash",
+				scope: "ApiHash",
 				message: "TELEGRAM_API_HASH is required",
 			});
 
@@ -38,7 +38,7 @@ export class TelegramConfigurationLockup {
 
 		if (!phoneNumber) {
 			this.logger.error({
-				scope: "Config:TelegramConfigurationLockup:PhoneNumber",
+				scope: "PhoneNumber",
 				message: "TELEGRAM_PHONE_NUMBER is required",
 			});
 
@@ -53,7 +53,7 @@ export class TelegramConfigurationLockup {
 
 		if (!password) {
 			this.logger.error({
-				scope: "Config:TelegramConfigurationLockup:Password",
+				scope: "Password",
 				message: "TELEGRAM_PASSWORD is required",
 			});
 
@@ -68,7 +68,7 @@ export class TelegramConfigurationLockup {
 
 		if (!sessionString) {
 			this.logger.error({
-				scope: "Config:TelegramConfigurationLockup:SessionString",
+				scope: "SessionString",
 				message: "TELEGRAM_SESSION_STRING is required",
 			});
 
@@ -83,7 +83,7 @@ export class TelegramConfigurationLockup {
 
 		if (!botToken) {
 			this.logger.error({
-				scope: "Config:TelegramConfigurationLockup:BotToken",
+				scope: "BotToken",
 				message: "TELEGRAM_BOT_TOKEN is required",
 			});
 

@@ -3,6 +3,7 @@ import { Logger } from "~core/logger/class.js";
 const DEFAULT_PORT = 8080;
 const DEFAULT_ENVIRONMENT = "local";
 const DEFAULT_LOG_LEVEL = "warn";
+const DEFAULT_HOST = "0.0.0.0";
 
 export class ApplicationConfigurationLockup {
 	private readonly logger = new Logger("Config:ApplicationConfigurationLockup");
@@ -22,12 +23,27 @@ export class ApplicationConfigurationLockup {
 		return port;
 	}
 
+	public get Host(): string {
+		const host = process.env.HOST;
+
+		if (!host) {
+			this.logger.warn({
+				scope: "Host",
+				message: `HOST is missing. Using default host ${DEFAULT_HOST}`,
+			});
+
+			return DEFAULT_HOST;
+		}
+
+		return host;
+	}
+
 	public get Secret(): string {
 		const secret = process.env.APP_SECRET;
 
 		if (!secret) {
 			this.logger.error({
-				scope: "Config:ApplicationConfigurationLockup:Secret",
+				scope: "Secret",
 				message: "APP_SECRET is required",
 			});
 
@@ -42,7 +58,7 @@ export class ApplicationConfigurationLockup {
 
 		if (!environment) {
 			this.logger.warn({
-				scope: "Config:ApplicationConfigurationLockup:Environment",
+				scope: "Environment",
 				message: `NODE_ENV is missing. Using default environment "${DEFAULT_ENVIRONMENT}"`,
 			});
 
@@ -57,7 +73,7 @@ export class ApplicationConfigurationLockup {
 
 		if (!logLevel) {
 			this.logger.warn({
-				scope: "Config:ApplicationConfigurationLockup:LogLevel",
+				scope: "LogLevel",
 				message: `LOG_LEVEL is missing. Using default log level "${DEFAULT_LOG_LEVEL}"`,
 			});
 
