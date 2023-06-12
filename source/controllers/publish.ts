@@ -10,7 +10,7 @@ export class PublishController {
 	private readonly telegram = new TelegramService();
 	private readonly documentService = new DocumentService();
 
-	public static async register(fastify: FastifyInstance, _opts: FastifyRegisterOptions<unknown>, done: any): Promise<void> {
+	public static async register(fastify: FastifyInstance, _opts: FastifyRegisterOptions<unknown>): Promise<void> {
 		const instance = new PublishController();
 
 		fastify.route({
@@ -33,8 +33,6 @@ export class PublishController {
 			schema: Validations.Publish.Text,
 			handler: instance.text.bind(instance),
 		});
-
-		done();
 	}
 
 	public async media(request: FastifyRequest<Request.Publish.Media>, reply: FastifyReply): Promise<void> {

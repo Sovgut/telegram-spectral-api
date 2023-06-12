@@ -1,4 +1,4 @@
-FROM node:20-bullseye-slim
+FROM node:20.3-bullseye-slim
 
 # Set the working directory
 WORKDIR /usr/app

@@ -1,27 +1,15 @@
-import { pino, type TransportSingleOptions, type TransportMultiOptions, type TransportPipelineOptions } from "pino";
-import { LogLevel } from "./constants.js";
+import { pino } from "pino";
+import { DEV_TRANSPORT_OPTIONS, LEVELS_GUARD, LogLevel } from "./constants.js";
 import { type LoggerContext } from "./types.js";
 
+const LOG_LEVEL = (process.env.LOG_LEVEL as LogLevel)?.toLowerCase() as LogLevel;
+const transport = pino({
+	level: LEVELS_GUARD[LOG_LEVEL] ?? LogLevel.DEBUG,
+	transport: process.env.NODE_ENV === "production" ? undefined : DEV_TRANSPORT_OPTIONS,
+});
+
 export class Logger {
-	private readonly transport = pino({
-		level: (process.env.LOG_LEVEL as LogLevel)?.toLowerCase() ?? LogLevel.DEBUG,
-		transport: this.createTransport(),
-	});
-
 	constructor(readonly parentScope: string) {}
-
-	private createTransport(): TransportSingleOptions | TransportMultiOptions | TransportPipelineOptions | undefined {
-		if (process.env.NODE_ENV === "production") {
-			return undefined;
-		}
-
-		return {
-			target: "pino-pretty",
-			options: {
-				colorize: true,
-			},
-		};
-	}
 
 	private commit(context: LoggerContext, level: LogLevel): void {
 		context.timestamp = new Date().toISOString();
@@ -29,16 +17,16 @@ export class Logger {
 
 		switch (level) {
 			case LogLevel.DEBUG:
-				this.transport.debug({ context }, context.message);
+				transport.debug({ context }, context.message);
 				break;
 			case LogLevel.INFO:
-				this.transport.info({ context }, context.message);
+				transport.info({ context }, context.message);
 				break;
 			case LogLevel.WARN:
-				this.transport.warn({ context }, context.message);
+				transport.warn({ context }, context.message);
 				break;
 			case LogLevel.ERROR:
-				this.transport.error({ context }, context.message);
+				transport.error({ context }, context.message);
 				break;
 		}
 	}
