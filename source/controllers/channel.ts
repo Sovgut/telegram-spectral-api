@@ -11,7 +11,7 @@ import { type IMongooseMeta } from "~types/entities.js";
 export class ChannelController {
 	private readonly channelService = new ChannelService();
 
-	public static register(fastify: FastifyInstance, _opts: FastifyRegisterOptions<unknown>, done: any): void {
+	public static async register(fastify: FastifyInstance, _opts: FastifyRegisterOptions<unknown>): Promise<void> {
 		const instance = new ChannelController();
 
 		fastify.route({
@@ -41,8 +41,6 @@ export class ChannelController {
 			schema: Validations.Channel.GetChannels,
 			handler: instance.getMany.bind(instance),
 		});
-
-		done();
 	}
 
 	public async listenChannel(request: FastifyRequest<Request.Channel.ListenChannel>, reply: FastifyReply): Promise<void> {

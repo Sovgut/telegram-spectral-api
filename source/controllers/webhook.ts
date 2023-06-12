@@ -8,7 +8,7 @@ import { Types } from "mongoose";
 export class WebhookController {
 	private readonly webhookService = new WebhookService();
 
-	public static register(fastify: FastifyInstance, _opts: FastifyRegisterOptions<unknown>, done: any): void {
+	public static async register(fastify: FastifyInstance, _opts: FastifyRegisterOptions<unknown>, done: any): Promise<void> {
 		const instance = new WebhookController();
 
 		fastify.route({

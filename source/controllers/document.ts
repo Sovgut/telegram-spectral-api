@@ -12,7 +12,7 @@ import { Types } from "mongoose";
 export class DocumentController {
 	private readonly documentService = new DocumentService();
 
-	public static register(fastify: FastifyInstance, _opts: FastifyRegisterOptions<unknown>, done: any): void {
+	public static async register(fastify: FastifyInstance, _opts: FastifyRegisterOptions<unknown>, done: any): Promise<void> {
 		const instance = new DocumentController();
 
 		fastify.route({

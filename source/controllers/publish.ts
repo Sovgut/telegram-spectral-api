@@ -10,7 +10,7 @@ export class PublishController {
 	private readonly telegram = new TelegramService();
 	private readonly documentService = new DocumentService();
 
-	public static register(fastify: FastifyInstance, _opts: FastifyRegisterOptions<unknown>, done: any): void {
+	public static async register(fastify: FastifyInstance, _opts: FastifyRegisterOptions<unknown>, done: any): Promise<void> {
 		const instance = new PublishController();
 
 		fastify.route({

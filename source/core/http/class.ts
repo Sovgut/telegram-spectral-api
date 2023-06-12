@@ -107,7 +107,7 @@ export class Http {
 		await telegramWatcher.start();
 	}
 
-	public async requestAuthorization(request: FastifyRequest, reply: FastifyReply, done: (error?: Error | undefined) => void): Promise<unknown> {
+	public async requestAuthorization(request: FastifyRequest, reply: FastifyReply): Promise<unknown> {
 		const [, token] = request.headers.authorization?.split(" ") ?? [];
 
 		if (token !== Config.App.Secret) {
@@ -116,11 +116,9 @@ export class Http {
 				error: "Unauthorized",
 			});
 		}
-
-		done();
 	}
 
-	public async requestLogger(request: FastifyRequest, reply: FastifyReply, done: (error?: Error | undefined) => void): Promise<void> {
+	public async requestLogger(request: FastifyRequest, reply: FastifyReply): Promise<void> {
 		this.logger.log({
 			scope: "requestLogger",
 			message: "Request received",
@@ -130,7 +128,5 @@ export class Http {
 			query: request.query,
 			body: request.body,
 		});
-
-		done();
 	}
 }

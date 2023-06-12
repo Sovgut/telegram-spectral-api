@@ -11,7 +11,7 @@
 		"build": "tsc && tsc-alias",
 		"lint": "eslint . --ext .ts",
 		"start": "node .",
-		"dev": "npm run-script lint && npm run-script build && cross-env NODE_ENV=local npm run-script start"
+		"dev": "npm run-script lint && npm run-script build && cross-env NODE_ENV=local npm run-script start -- --trace-warnings"
 	},
 	"dependencies": {
 		"@azure/storage-blob": "^12.14.0",
