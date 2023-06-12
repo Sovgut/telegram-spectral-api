@@ -1,4 +1,4 @@
-import Fastify from "fastify";
+import Fastify, { type FastifyInstance } from "fastify";
 import FastifyMultipart from "@fastify/multipart";
 import { Config } from "~core/config/class.js";
 import { TelegramConnectionProvider } from "~core/telegram/connection.js";
@@ -16,14 +16,17 @@ server.setErrorHandler(http.errorHandler.bind(http));
 server.register(FastifyMultipart);
 server.addHook("onRequest", http.requestLogger.bind(http));
 
-// This is a health check endpoint and should be available without authorization
-server.register(HealthController.register);
+server.register(async function publicRoutes(api: FastifyInstance) {
+	api.register(HealthController.register);
+});
 
-server.addHook("onRequest", http.requestAuthorization.bind(http));
-server.register(DocumentController.register);
-server.register(PublishController.register);
-server.register(ChannelController.register);
-server.register(WebhookController.register);
+server.register(async function privateRoutes(api: FastifyInstance) {
+	api.addHook("onRequest", http.requestAuthorization.bind(http));
+	api.register(DocumentController.register);
+	api.register(PublishController.register);
+	api.register(ChannelController.register);
+	api.register(WebhookController.register);
+});
 
 server.listen({ host: Config.App.Host, port: Config.App.Port }, http.onServerStart.bind(http));
 

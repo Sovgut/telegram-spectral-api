@@ -7,7 +7,12 @@ export namespace Core {
 	export const Constants = _Constants;
 
 	export namespace Utils {
-		let appInfo: { name: string; version: string } | undefined;
+		interface AppInfo {
+			name: string;
+			version: string;
+		}
+
+		let appInfo: AppInfo | undefined;
 
 		/**
 		 * Get application name and version from package.json
@@ -16,15 +21,19 @@ export namespace Core {
 		 * @throws Error if package.json not found
 		 * @throws Error if package.json is invalid
 		 */
-		export const getAppInfo = (): { name: string; version: string } | never => {
+		export const getAppInfo = (): AppInfo | never => {
 			if (appInfo !== undefined) {
 				return appInfo;
 			}
 
 			const path = Core.Utils.rootPath("package.json");
 			const data = fs.readFileSync(path, "utf-8");
+			const parsed = JSON.parse(data);
 
-			return (appInfo = JSON.parse(data));
+			return (appInfo = {
+				name: parsed.name,
+				version: parsed.version,
+			});
 		};
 
 		/**
