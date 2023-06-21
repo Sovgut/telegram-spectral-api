@@ -1,25 +1,20 @@
 import { connection } from "~database/connection.js";
-import { Schema, type Types } from "mongoose";
+import { Schema } from "mongoose";
 
 export interface IWebhook {
 	readonly url: string;
 	readonly token: string;
-	readonly channel: Types.ObjectId;
 }
 
 const schema = new Schema<IWebhook>(
 	{
 		url: {
 			type: Schema.Types.String,
+			unique: true,
 			required: true,
 		},
 		token: {
 			type: Schema.Types.String,
-			required: true,
-		},
-		channel: {
-			type: Schema.Types.ObjectId,
-			ref: "channels",
 			required: true,
 		},
 	},

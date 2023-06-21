@@ -3,7 +3,6 @@ import { type Request } from "~types/request.js";
 import { StatusCodes } from "http-status-codes";
 import { Validations } from "~core/http/validations.js";
 import { WebhookService } from "~services/webhooks/class.js";
-import { Types } from "mongoose";
 
 export class WebhookController {
 	private readonly webhookService = new WebhookService();
@@ -42,7 +41,6 @@ export class WebhookController {
 
 	public async createWebhook(request: FastifyRequest<Request.Webhook.CreateWebhook>, reply: FastifyReply): Promise<void> {
 		const channel = await this.webhookService.create({
-			channel: new Types.ObjectId(request.body.channelId),
 			url: request.body.url,
 			token: request.body.token,
 		});

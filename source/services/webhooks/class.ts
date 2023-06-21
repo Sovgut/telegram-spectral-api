@@ -11,7 +11,6 @@ export class WebhookService {
 		const webhook = await this.model.create({
 			url: data.url,
 			token: data.token,
-			channel: data.channel,
 		});
 
 		return webhook.toObject();
@@ -42,7 +41,6 @@ export class WebhookService {
 			{
 				url: data.url,
 				token: data.token,
-				channel: data.channel,
 			},
 			{
 				new: true,

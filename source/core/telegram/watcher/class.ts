@@ -35,7 +35,7 @@ export class TelegramWatcher {
 		try {
 			const peer = event.message.peerId as Peer;
 			const channel = await this.channelProvider.getChannelByPeer(peer);
-			const webhook = await this.webhookService.read(channel._id.toHexString());
+			const webhooks = await this.webhookService.list();
 			const media: Array<IDocument & IMongooseMeta> = [];
 
 			if (event.message.document !== undefined && event.message.document.mimeType !== "image/gif") {
@@ -109,20 +109,22 @@ export class TelegramWatcher {
 				media.push(document);
 			}
 
-			await this.logger.info({
-				scope: "TelegramWatcher::onMessage",
-				channelId: peer.channelId,
-				message: event.message.text,
-				groupId: event.message.groupedId?.toString(),
-				media,
-			});
+			for (const webhook of webhooks) {
+				await this.logger.info({
+					scope: "TelegramWatcher::onMessage",
+					channelId: peer.channelId,
+					message: event.message.text,
+					groupId: event.message.groupedId?.toString(),
+					media,
+				});
 
-			await this.http.invokeWebhook(webhook, {
-				channelId: channel._id,
-				message: event.message.text,
-				groupId: event.message.groupedId?.toString(),
-				media,
-			});
+				await this.http.invokeWebhook(webhook, {
+					channelId: channel._id,
+					message: event.message.text,
+					groupId: event.message.groupedId?.toString(),
+					media,
+				});
+			}
 		} catch (error) {
 			if (!(error instanceof NotFoundError) && error instanceof Error) {
 				await this.logger.error({

@@ -1,6 +1,6 @@
 {
 	"name": "spectral-telegram-api",
-	"version": "1.0.24",
+	"version": "1.1.0",
 	"main": "build/application.js",
 	"type": "module",
 	"private": true,
